@@ -83,7 +83,10 @@ public class PaginaPrincipal {
         cerrarSesionBtn.setBounds(905, 13, usuarioInactivoBtn.getPreferredSize().width, usuarioInactivoBtn.getPreferredSize().height);
 
         usuarioInactivoBtn.addActionListener(e -> {
-            VisualizadorPanel.mostrarPanel(new AccesoUsuario(), 1270, 340);
+            int x = PaginaPrincipal.principal.getX() + PaginaPrincipal.principal.getWidth() - 190; 
+            int y = PaginaPrincipal.principal.getY() + (PaginaPrincipal.principal.getHeight() - 380) / 2;
+
+            VisualizadorPanel.mostrarPanel(new AccesoUsuario(), x, y);
         });
 
         usuarioActivoBtn.addActionListener(e -> {
