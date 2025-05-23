@@ -47,4 +47,11 @@ public class VisualizadorPanel {
 
         dialogo.setVisible(true);
     }
+
+    public static void cerrarDialogo() {
+        if (dialogo != null && dialogo.isShowing()) {
+            dialogo.dispose();
+            dialogo = null;
+        }
+    }
 }

@@ -9,7 +9,8 @@ public class Colores {
         LIGHT_GRAY("#E6E5E5"),
         BLUE("#121EA1"),
         DARK_BLUE("#04102F"),
-        LIGHT_BLUE("#E5E7EA");
+        LIGHT_BLUE("#E5E7EA"),
+        RED("#C13E3E");
 
         private final String hexCode;
 
@@ -29,4 +30,5 @@ public class Colores {
     public static String BLUE = Color.BLUE.getHexCode();
     public static String DARK_BLUE = Color.DARK_BLUE.getHexCode();
     public static String LIGHT_BLUE = Color.LIGHT_BLUE.getHexCode();
+    public static String RED = Color.RED.getHexCode();
 }
