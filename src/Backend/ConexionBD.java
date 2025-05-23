@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConexionBD {
-    private static final String URL = "jdbc:mysql://mainline.proxy.rlwy.net:48293/sistema_reciclaje?useSSL=false&serverTimezone=UTC";
+    private static final String URL = "jdbc:mysql://127.0.0.1:3306/sistema_reciclaje?useSSL=false&serverTimezone=UTC";
     private static final String USUARIO = "root";
-    private static final String CONTRASENA = "HnSfCtzPooZTZKLdybCXEzhaenhwsrVP";
+    private static final String CONTRASENA = "";
 
     private static Connection conexion = null;
 
