@@ -1,9 +1,10 @@
 package Frontend.PopUp.SolicitudRespuesta;
 
 import Backend.Utils.VisualizadorPanel;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import javax.swing.*;
 
 public class ConfirmacionPersonalizada {
 
@@ -16,7 +17,7 @@ public class ConfirmacionPersonalizada {
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 20, 20, 20));
 
         JLabel label = new JLabel(mensaje);
         label.setFont(new Font("Arial", Font.BOLD, 14));

@@ -16,7 +16,7 @@ public class EdicionUsuario extends JPanel {
 
     public EdicionUsuario() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
+        setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
         setBackground(Color.decode("#FCFCFC"));
 
         JLabel titulo = new JLabel("Editar Usuario");
@@ -26,7 +26,6 @@ public class EdicionUsuario extends JPanel {
         add(titulo);
         add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // Obtener correo del cache
         String cache = Cache.leerCache();
         if (cache == null) {
             JOptionPane.showMessageDialog(this, "No se ha encontrado un usuario activo.");
@@ -34,7 +33,6 @@ public class EdicionUsuario extends JPanel {
         }
         String correoUsuario = cache.split(":")[1];
 
-        // Obtener el usuario por correo
         UsuarioDAO usuarioDAO = new UsuarioDAO();
         Usuario usuario = usuarioDAO.obtenerUsuarioPorCorreo(correoUsuario);
         if (usuario == null) {

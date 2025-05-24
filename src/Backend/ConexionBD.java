@@ -9,17 +9,12 @@ public class ConexionBD {
     private static final String USUARIO = "root";
     private static final String CONTRASENA = "";
 
-    private static Connection conexion = null;
-
     public static Connection obtenerConexion() {
-        if (conexion == null) {
-            try {
-                conexion = DriverManager.getConnection(URL, USUARIO, CONTRASENA);
-                System.out.println("Conexión establecida con éxito.");
-            } catch (SQLException e) {
-                System.out.println("Error al conectar a la base de datos: " + e.getMessage());
-            }
+        try {
+            Connection conexion = DriverManager.getConnection(URL, USUARIO, CONTRASENA);
+            return conexion;
+        } catch (SQLException e) {
+            return null;
         }
-        return conexion;
     }
 }
