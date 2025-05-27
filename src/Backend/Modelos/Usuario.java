@@ -12,4 +12,31 @@ public class Usuario {
         this.contrasena = contrasena;
         this.telefono = telefono;
     }
+
+   public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public String getCorreo() {
+        return correo;
+    }
+
+    public String getContrasena() {
+        return contrasena;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+
+
 }

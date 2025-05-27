@@ -1,15 +1,14 @@
 package Frontend.PopUp;
 
 import Backend.DAOs.UsuarioDAO;
-import Backend.Utils.Estilos;
 import Backend.Utils.Colores;
-
-import javax.swing.*;
+import Backend.Utils.Estilos;
 import java.awt.*;
+import javax.swing.*;
 
 public class RegistroUsuario extends JPanel {
 
-    public RegistroUsuario() {
+    public RegistroUsuario(int rol) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
         setBackground(Color.decode("#FCFCFC"));
@@ -46,7 +45,7 @@ public class RegistroUsuario extends JPanel {
             String telefono = txtTelefono.getText();
 
             UsuarioDAO usuarioDAO = new UsuarioDAO();
-            boolean registrado = usuarioDAO.registrarUsuario(nombre, apellido, correo, contrasena, telefono);
+            boolean registrado = usuarioDAO.registrarUsuario(nombre, apellido, correo, contrasena, telefono,rol);
 
             if (registrado) {
                 JOptionPane.showMessageDialog(this, "Usuario registrado exitosamente.");

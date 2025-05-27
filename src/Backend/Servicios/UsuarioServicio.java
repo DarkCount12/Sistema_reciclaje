@@ -3,7 +3,6 @@ package Backend.Servicios;
 import Backend.DAOs.UsuarioDAO;
 import Backend.Modelos.Usuario;
 import Backend.Utils.Constantes;
-
 import java.util.List;
 
 public class UsuarioServicio {
@@ -21,7 +20,8 @@ public class UsuarioServicio {
         for (Usuario usuario : usuarios) {
             if (usuario.correo.equals(correo)) {
                 if (usuario.contrasena.equals(contrasena)) {
-                    activarEstado(correo);
+                    String rol = usuarioDAO.obtenerRolPorCorreo(correo); 
+                    activarEstado(correo,rol);
                     return true;
                 }
             }
@@ -34,13 +34,15 @@ public class UsuarioServicio {
         return estado;
     }
 
-    public static void activarEstado(String correoUsuario) {
+    public static void activarEstado(String correoUsuario,String rol) {
         estado = Constantes.ESTADO_ACTIVO;
-        Cache.guardarEnCache("Usuario:" + correoUsuario);
+        
+
+        Cache.guardarEnCache(correoUsuario,rol);
     }
 
     public static void desactivarEstado() {
         estado = Constantes.ESTADO_INACTIVO;
-        Cache.guardarEnCache("Usuario:null");
+        Cache.guardarEnCache("null","null");
     }
 }

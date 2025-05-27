@@ -1,13 +1,15 @@
 package Frontend.PopUp;
 
+import Backend.DAOs.UsuarioDAO;
 import Backend.Servicios.UsuarioServicio;
-import Backend.Utils.Estilos;
 import Backend.Utils.Colores;
+import Backend.Utils.Estilos;
 import Frontend.Home;
+import Frontend.Page.PaginaAdministrador;
 import Frontend.Page.PaginaPrincipal;
-
-import javax.swing.*;
+import Frontend.Page.PaginaRecolector;
 import java.awt.*;
+import javax.swing.*;
 
 public class InicioSesionUsuario extends JPanel {
 
@@ -34,40 +36,49 @@ public class InicioSesionUsuario extends JPanel {
         add(Box.createRigidArea(new Dimension(0, 15)));
         add(btnLogin);
 
-        btnLogin.addActionListener(e -> {
-            String correo = txtCorreo.getText();
-            String contrasena = new String(txtContrasena.getPassword());
+btnLogin.addActionListener(e -> {
+    String correo = txtCorreo.getText();
+    String contrasena = new String(txtContrasena.getPassword());
+    UsuarioDAO r=new UsuarioDAO();
+    UsuarioServicio usuarioServicio = new UsuarioServicio();
+    boolean loginExitoso = usuarioServicio.autenticarUsuario(correo, contrasena);
 
-            UsuarioServicio usuarioServicio = new UsuarioServicio();
-            boolean loginExitoso = usuarioServicio.autenticarUsuario(correo, contrasena);
+    if (loginExitoso) {
+        String rol = r.obtenerRolPorCorreo(correo); 
+        UsuarioServicio.activarEstado(correo,rol);
 
-            if (loginExitoso) {
-                UsuarioServicio.activarEstado(correo);
+        JOptionPane.showMessageDialog(this, "Bienvenido, " + correo);
 
-                JOptionPane.showMessageDialog(this, "Bienvenido, " + correo);
+        txtCorreo.setText("");
+        txtContrasena.setText("");
 
-                txtCorreo.setText("");
-                txtContrasena.setText("");
-
-                Timer timer = new Timer(10, evt -> {
-                    Window win = SwingUtilities.getWindowAncestor(this);
-                    if (win != null) {
-                        win.dispose();
-                        PaginaPrincipal.principal.dispose();
-                    }
-
-                    SwingUtilities.invokeLater(() -> {
-                        Home.main(new String[0]);
-                    });
-                });
-                timer.setRepeats(false);
-                timer.start();
-
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al iniciar sesión. Verifique sus credenciales.");
+        Timer timer = new Timer(10, evt -> {
+            Window win = SwingUtilities.getWindowAncestor(this);
+            if (win != null) {
+                win.dispose();
+                PaginaPrincipal.principal.dispose();
             }
+
+            SwingUtilities.invokeLater(() -> {
+                if ("recolector".equalsIgnoreCase(rol)) {
+                    new PaginaRecolector();
+                } else if("admin".equalsIgnoreCase(rol) ){
+                    new PaginaAdministrador();
+                } else {
+                    Home.main(new String[0]);
+                }
+            });
         });
+        timer.setRepeats(false);
+        timer.start();
+
+    } else {
+        JOptionPane.showMessageDialog(this, "Error al iniciar sesión. Verifique sus credenciales.");
     }
+        });
+
+
+ }
 
     private JPanel crearCampo(String etiqueta, JComponent campo) {
         JPanel panel = new JPanel(new BorderLayout());

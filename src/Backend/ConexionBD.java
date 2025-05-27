@@ -11,10 +11,9 @@ public class ConexionBD {
 
     public static Connection obtenerConexion() {
         try {
-            Connection conexion = DriverManager.getConnection(URL, USUARIO, CONTRASENA);
-            return conexion;
+            return DriverManager.getConnection(URL, USUARIO, CONTRASENA);
         } catch (SQLException e) {
-            return null;
+            throw new RuntimeException("Error al conectar a la base de datos", e);
         }
     }
 }
