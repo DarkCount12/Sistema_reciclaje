@@ -1,5 +1,6 @@
 package Frontend.PopUp;
 
+import Backend.ConexionBD;
 import Backend.DAOs.ImpactoAmbientalDAO;
 import Backend.DAOs.PuntoReciclajeDAO;
 import Backend.Modelos.ImpactoAmbiental;
@@ -8,12 +9,10 @@ import Backend.Servicios.Cache;
 import Backend.Utils.Colores;
 import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
-import Backend.ConexionBD;
-
-import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
+import javax.swing.*;
 
 public class InfoImpactoAmbiental extends JPanel {
 
@@ -29,12 +28,11 @@ public class InfoImpactoAmbiental extends JPanel {
         add(titulo);
         add(Box.createRigidArea(new Dimension(0, 15)));
 
-        String cache = Cache.leerCache();
-        if (cache == null) {
+        String correoUsuario = Cache.obtenerCorreo();
+        if (correoUsuario == null) {
             JOptionPane.showMessageDialog(this, "No se ha encontrado un usuario activo.");
             return;
         }
-        String correoUsuario = cache.split(":")[1];
 
         try {
             ImpactoAmbientalDAO impactoDAO = new ImpactoAmbientalDAO(ConexionBD.obtenerConexion());

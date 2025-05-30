@@ -3,11 +3,8 @@ package Frontend.PopUp;
 import Backend.Utils.Colores;
 import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
-import Frontend.PopUp.EdicionUsuario;
-import Frontend.PopUp.InformacionUsuario;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class AccederPerfil extends JPanel {
 

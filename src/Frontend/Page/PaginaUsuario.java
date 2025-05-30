@@ -8,7 +8,7 @@ import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
 import Frontend.Components.RotatedLabel;
 import Frontend.Home;
-import Frontend.PopUp.EdicionUsuario;
+import Frontend.PopUp.AccederPerfil;
 import java.awt.*;
 import java.util.List;
 import javax.swing.*;
@@ -21,6 +21,9 @@ public class PaginaUsuario {
     private static final int REWARDS_PER_PAGE = 12;
     private static final int TOTAL_REWARDS = 21;
 
+    public static void main(String[] args) {
+        new PaginaUsuario();
+    }
     public PaginaUsuario() {
         frame = new JFrame("Sistema de Reciclaje - Usuario");
         inicializar();
@@ -67,7 +70,10 @@ public class PaginaUsuario {
         cerrarSesionBtn.setBounds(905, 13, cerrarSesionBtn.getPreferredSize().width, cerrarSesionBtn.getPreferredSize().height);
 
         usuarioActivoBtn.addActionListener(e -> {
-            VisualizadorPanel.mostrarPanel(new EdicionUsuario(), 0, 0);
+            int x = frame.getX() + frame.getWidth() - 250;
+            int y = frame.getY() + (frame.getHeight() - 375) / 2;
+
+            VisualizadorPanel.mostrarPanel(new AccederPerfil(), x, y);
         });
 
         cerrarSesionBtn.addActionListener(e -> {

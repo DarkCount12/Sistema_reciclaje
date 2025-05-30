@@ -8,9 +8,8 @@ import Backend.Servicios.Cache;
 import Backend.Utils.Colores;
 import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class InformacionUsuario extends JPanel {
 
@@ -26,12 +25,12 @@ public class InformacionUsuario extends JPanel {
         add(titulo);
         add(Box.createRigidArea(new Dimension(0, 15)));
 
-        String cache = Cache.leerCache();
-        if (cache == null) {
+        String correoUsuario= Cache.obtenerCorreo();
+        
+        if (correoUsuario == null) {
             JOptionPane.showMessageDialog(this, "No se ha encontrado un usuario activo.");
             return;
         }
-        String correoUsuario = cache.split(":")[1];
 
         UsuarioDAO usuarioDAO = new UsuarioDAO();
         Usuario usuario = usuarioDAO.obtenerUsuarioPorCorreo(correoUsuario);
