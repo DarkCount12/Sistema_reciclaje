@@ -45,7 +45,7 @@ public class PaginaAdministrador {
         pestañas.addTab("Estadísticas", crearPanelPlaceholder("Análisis y métricas"));
         pestañas.addTab("Reportes", Reportes.crearPanelReportes());
          
-        pestañas.setSelectedIndex(3);
+        // pestañas.setSelectedIndex(3);
         // Agregar pestañas al panel principal
         panelPrincipal.add(pestañas, BorderLayout.CENTER);
 
