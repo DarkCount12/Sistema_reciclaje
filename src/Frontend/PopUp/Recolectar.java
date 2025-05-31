@@ -10,10 +10,10 @@ import javax.swing.*;
 public class Recolectar extends JFrame {
 
 public static void main(String[] args) {
-    new Recolectar(1);
+    new Recolectar(1,1);
 }
 
-    public Recolectar(int idpunto) {
+    public Recolectar(int idpunto,int idUsua) {
         setTitle("Nuevo Reciclaje");
         setSize(400, 300);
         setLocationRelativeTo(null);
@@ -28,7 +28,9 @@ public static void main(String[] args) {
         labelIdUsuario.setBounds(30, 30, 100, 25);
         panel.add(labelIdUsuario);
 
-        JTextField campoIdUsuario = new JTextField();
+        JTextField campoIdUsuario = new JTextField(String.valueOf(idUsua));
+        campoIdUsuario.setEditable(false); // No editable
+        campoIdUsuario.setBackground(Color.LIGHT_GRAY);
         campoIdUsuario.setBounds(140, 30, 200, 25);
         panel.add(campoIdUsuario);
 

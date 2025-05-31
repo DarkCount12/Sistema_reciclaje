@@ -185,4 +185,28 @@ public int obtenerIdPorCorreo(String correo) {
     }
     return -1; // Valor que indica que no se encontró el usuario o hubo un error
 }
+
+public int obtenerPuntajeporId(int id){
+
+    
+      String sql = "SELECT puntos_totales " +
+                 "FROM Puntaje " +
+                 "WHERE id_usuario = ?";
+
+    try (Connection conn = ConexionBD.obtenerConexion();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, id);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            return rs.getInt("puntos_totales");
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return 0 ;
+}
 }

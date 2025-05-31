@@ -118,6 +118,32 @@ public class PuntoRecoleccionDAO {
         }
     }
 
+public List<String> obtenerMaterialesPorPunto(int idPunto) {
+    List<String> materiales = new ArrayList<>();
+    String sql = """
+        SELECT tm.categoria
+        FROM Punto_Tipo_Material ptm
+        JOIN Tipo_Material tm ON ptm.id_tipo_material = tm.id_tipo_material
+        WHERE ptm.id_punto = ?
+    """;
+
+    try (Connection conn = ConexionBD.obtenerConexion();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, idPunto);
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            materiales.add(rs.getString("categoria"));
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return materiales;
+}
+
 
 
 
