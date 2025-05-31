@@ -1,10 +1,10 @@
 package Frontend;
 
-import Frontend.Page.PaginaPrincipal;
+import Frontend.Page.PaginaAdministrador;
 
 public class Home {
 
     public static void main(String[] args) {
-        new PaginaPrincipal();
+        new PaginaAdministrador();
     }
 }

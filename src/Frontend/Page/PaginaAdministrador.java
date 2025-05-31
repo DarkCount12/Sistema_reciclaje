@@ -1,17 +1,21 @@
 package Frontend.Page;
 
-import java.awt.*;
-import javax.swing.*;
+import Frontend.Page.Secciones.Reportes;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 public class PaginaAdministrador {
     public static JFrame ventanaAdmin;
     private JTabbedPane pestañas;
 
-
-
-public static void main(String[] args) {
-    new PaginaAdministrador();
-}
+    public static void main(String[] args) {
+        new PaginaAdministrador();
+    }
 
     public PaginaAdministrador() {
         ventanaAdmin = new JFrame("Panel del Administrador");
@@ -39,8 +43,9 @@ public static void main(String[] args) {
         pestañas.addTab("Funciones", crearPanelPlaceholder("Colocar funciones aqui "));
         pestañas.addTab("Usuarios", crearPanelPlaceholder("Gestión de usuarios"));
         pestañas.addTab("Estadísticas", crearPanelPlaceholder("Análisis y métricas"));
-        pestañas.addTab("Reportes", reportes());
+        pestañas.addTab("Reportes", Reportes.crearPanelReportes());
          
+        pestañas.setSelectedIndex(3);
         // Agregar pestañas al panel principal
         panelPrincipal.add(pestañas, BorderLayout.CENTER);
 
@@ -50,29 +55,12 @@ public static void main(String[] args) {
         ventanaAdmin.setVisible(true);
     }
 
-    // Método para crear paneles vacíos con un mensaje
     private JPanel crearPanelPlaceholder(String mensaje) {
         JPanel panel = new JPanel();
-//panel.setBackground( Color.WHITE);
         JLabel label = new JLabel(mensaje);
         label.setForeground(Color.LIGHT_GRAY);
         label.setFont(new Font("SansSerif", Font.PLAIN, 16));
         panel.add(label);
         return panel;
     }
-
-
-
-
-    // Pestaña de reportes 
-
-     public JPanel reportes(){
-     JPanel panel = new JPanel();
-
-
-
-
-     return panel;
-     }
-
 }
