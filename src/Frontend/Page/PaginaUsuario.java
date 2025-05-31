@@ -8,6 +8,7 @@ import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
 import Frontend.Components.RotatedLabel;
 import Frontend.Home;
+import Frontend.PopUp.AccederDonaciones;
 import Frontend.PopUp.AccederPerfil;
 import java.awt.*;
 import java.util.List;
@@ -95,14 +96,29 @@ public class PaginaUsuario {
 
         JPanel rewardsPanel = createRewardsPanel();
         tabbedPane.addTab("Recompensas", rewardsPanel);
+        JPanel donacionPanel = new JPanel(); 
+        tabbedPane.addTab("donaciones", donacionPanel);
+        tabbedPane.addChangeListener(e -> {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            String title = tabbedPane.getTitleAt(selectedIndex);
 
+            if ("donaciones".equals(title)) {
+                openDescuentos();
+            }
+        });
         
         frame.add(panelVertical, BorderLayout.NORTH);
         frame.add(tabbedPane, BorderLayout.CENTER);
 
         frame.setVisible(true);
     }
+    public void openDescuentos() {
+    int x = frame.getX() + frame.getWidth() - 250;
+    int y = frame.getY() + (frame.getHeight() - 375) / 2;
 
+    VisualizadorPanel.mostrarPanel(new AccederDonaciones(), x, y);
+
+}
     private JPanel createPerfilPanel() {
         JPanel contenido = new JPanel();
         contenido.setBackground(new Color(255, 255, 255, 128));
