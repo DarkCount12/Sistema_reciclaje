@@ -89,6 +89,7 @@ public class PaginaUsuario {
         panelAmarillo.add(cerrarSesionBtn);
         lineaAzulSuperior.add(panelAmarillo);
 
+        
         // pestañass
         JTabbedPane tabbedPane = new JTabbedPane();
         JPanel perfilPanel = createPerfilPanel();

@@ -6,8 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RecompensaDAO {
-
+public class RecompensaDAO  {   
     public List<Recompensa> obtenerTodasLasRecompensas() {
         List<Recompensa> recompensas = new ArrayList<>();
         String sql = "SELECT * FROM Recompensa";

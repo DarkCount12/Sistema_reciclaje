@@ -1,13 +1,23 @@
 package Frontend.Page;
 
+import Frontend.Maps.CrudPanel;
+import Frontend.Maps.RecompensaFormMapper;
 import Frontend.Page.Secciones.Reportes;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+
+import Frontend.Maps.*;
+import Backend.DAOs.CrudDAO;
+
+import Backend.DAOs.Recompensa2DAO;
+import Backend.Modelos.Recompensa;
 
 public class PaginaAdministrador {
     public static JFrame ventanaAdmin;
@@ -40,9 +50,9 @@ public class PaginaAdministrador {
         pestañas.setFont(new Font("SansSerif", Font.BOLD, 14));
 
         // Añadir pestañas vacías listas para usar
-        pestañas.addTab("Funciones", crearPanelPlaceholder("Colocar funciones aqui "));
-        pestañas.addTab("Usuarios", crearPanelPlaceholder("Gestión de usuarios"));
-        pestañas.addTab("Estadísticas", crearPanelPlaceholder("Análisis y métricas"));
+        pestañas.addTab("Funciones", crearPanelFunciones());
+        pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Gestión de usuarios"));
+        pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Análisis y métricas"));
         pestañas.addTab("Reportes", Reportes.crearPanelReportes());
          
         // pestañas.setSelectedIndex(3);
@@ -63,4 +73,37 @@ public class PaginaAdministrador {
         panel.add(label);
         return panel;
     }
+
+
+public JPanel crearPanelFunciones() {
+    JPanel panel = new JPanel(new BorderLayout());
+
+    JComboBox<String> selectorTabla = new JComboBox<>(new String[] {
+        "Recompensa", "Puntos de Reciclaje", "Descuento", "Tipo Material"
+    });
+
+    JPanel panelCRUD = new JPanel(new BorderLayout());
+
+    selectorTabla.addActionListener(e -> {
+        String seleccion = (String) selectorTabla.getSelectedItem();
+        panelCRUD.removeAll();
+
+        switch (seleccion) {
+            case "Recompensa":
+                panelCRUD.add(new CrudPanel<Recompensa>(new Recompensa2DAO(), new RecompensaFormMapper()), BorderLayout.CENTER);
+
+                break;
+            // Agregar casos para las otras tablas
+        }
+
+        panelCRUD.revalidate();
+        panelCRUD.repaint();
+    });
+
+    panel.add(selectorTabla, BorderLayout.NORTH);
+    panel.add(panelCRUD, BorderLayout.CENTER);
+    return panel;
+}
+
+
 }
