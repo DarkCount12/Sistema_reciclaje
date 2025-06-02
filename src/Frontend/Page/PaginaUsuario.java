@@ -97,15 +97,13 @@ public class PaginaUsuario {
 
         JPanel rewardsPanel = createRewardsPanel();
         tabbedPane.addTab("Recompensas", rewardsPanel);
-        JPanel donacionPanel = new JPanel(); 
+        JPanel donacionPanel = createDonacionesPanel(); 
         tabbedPane.addTab("donaciones", donacionPanel);
         tabbedPane.addChangeListener(e -> {
             int selectedIndex = tabbedPane.getSelectedIndex();
             String title = tabbedPane.getTitleAt(selectedIndex);
 
-            if ("donaciones".equals(title)) {
-                openDescuentos();
-            }
+    
         });
         
         frame.add(panelVertical, BorderLayout.NORTH);
@@ -113,13 +111,7 @@ public class PaginaUsuario {
 
         frame.setVisible(true);
     }
-    public void openDescuentos() {
-    int x = frame.getX() + frame.getWidth() - 250;
-    int y = frame.getY() + (frame.getHeight() - 375) / 2;
 
-    VisualizadorPanel.mostrarPanel(new AccederDonaciones(), x, y);
-
-}
     private JPanel createPerfilPanel() {
         JPanel contenido = new JPanel();
         contenido.setBackground(new Color(255, 255, 255, 128));
@@ -352,4 +344,15 @@ public class PaginaUsuario {
     private int getTotalPages() {
         return (int) Math.ceil((double) TOTAL_REWARDS / REWARDS_PER_PAGE);
     }
+
+
+
+    private JPanel createDonacionesPanel() {
+    JPanel donacionPanel = new JPanel();
+    donacionPanel.setLayout(new BorderLayout());
+    // Añade aquí componentes o paneles que muestren las donaciones, por ejemplo:
+    donacionPanel.add(new AccederDonaciones()); // si AccederDonaciones es un JPanel
+    return donacionPanel;
+}
+
 }
