@@ -119,6 +119,10 @@ public class PaginaPrincipal {
                 principal.dispose();
                 new PaginaUsuario();
                 return;
+            } else if ("Admin".equalsIgnoreCase(rol)) {
+                principal.dispose();
+                new PaginaAdministrador();
+                return;
             } else {
                 panelAmarillo.add(usuarioActivoBtn);
                 panelAmarillo.add(cerrarSesionBtn);

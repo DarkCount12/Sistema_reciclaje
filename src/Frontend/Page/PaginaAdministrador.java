@@ -7,17 +7,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import Frontend.Home;
 import Frontend.Maps.*;
 import Backend.DAOs.CrudDAO;
 
 import Backend.DAOs.Recompensa2DAO;
 import Backend.Modelos.Recompensa;
+import Backend.Servicios.UsuarioServicio;
+import Backend.Utils.Estilos;
 
 public class PaginaAdministrador {
     public static JFrame ventanaAdmin;
@@ -32,38 +36,67 @@ public class PaginaAdministrador {
         inicializar();
     }
 
-    public void inicializar() {
-        // Estilo de la ventana
-        ventanaAdmin.setSize(1000, 600);
-        ventanaAdmin.setLocationRelativeTo(null);
-        ventanaAdmin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        ventanaAdmin.setLayout(new BorderLayout());
+   public void inicializar() {
+    ventanaAdmin.setSize(1000, 600);
+    ventanaAdmin.setLocationRelativeTo(null);
+    ventanaAdmin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    ventanaAdmin.setLayout(new BorderLayout());
 
-        // Panel principal con color de fondo
-        JPanel panelPrincipal = new JPanel(new BorderLayout());
-        panelPrincipal.setBackground(Color.DARK_GRAY);
+    JPanel panelPrincipal = new JPanel(new BorderLayout());
+    panelPrincipal.setBackground(Color.DARK_GRAY);
 
-        // Crear las pestañas
-        pestañas = new JTabbedPane();
-        pestañas.setBackground(Color.BLACK);
-        pestañas.setForeground(Color.WHITE);
-        pestañas.setFont(new Font("SansSerif", Font.BOLD, 14));
+    // PANEL SUPERIOR
+    JPanel panelSuperior = new JPanel(new BorderLayout());
+    panelSuperior.setBackground(Color.DARK_GRAY);
+    panelSuperior.setPreferredSize(new java.awt.Dimension(1000, 50));
 
-        // Añadir pestañas vacías listas para usar
-        pestañas.addTab("Funciones", crearPanelFunciones());
-        pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Gestión de usuarios"));
-        pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Análisis y métricas"));
-        pestañas.addTab("Reportes", Reportes.crearPanelReportes());
-         
-        // pestañas.setSelectedIndex(3);
-        // Agregar pestañas al panel principal
-        panelPrincipal.add(pestañas, BorderLayout.CENTER);
+    // Título a la izquierda
+    JLabel titulo = new JLabel("PANEL DEL ADMINISTRADOR");
+    titulo.setForeground(Color.WHITE);
+    titulo.setFont(new Font("SansSerif", Font.BOLD, 20));
+    titulo.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 15, 10, 0)); // Padding
+    panelSuperior.add(titulo, BorderLayout.WEST);
 
-        // Agregar al JFrame
-        ventanaAdmin.add(panelPrincipal);
+    // Botón cerrar sesión a la derecha
+    JButton cerrarSesionBtn = Estilos.crearBotonConImagen(40, 40, "imagenes\\cerrar_sesion.png");
+    cerrarSesionBtn.setOpaque(false);
+    cerrarSesionBtn.setContentAreaFilled(false);
+    cerrarSesionBtn.setBorderPainted(false);
+    cerrarSesionBtn.setFocusPainted(false);
 
-        ventanaAdmin.setVisible(true);
-    }
+    cerrarSesionBtn.addActionListener(e -> {
+        UsuarioServicio.desactivarEstado();
+        ventanaAdmin.dispose();
+        java.awt.EventQueue.invokeLater(() -> {
+            Home.main(new String[0]);
+        });
+    });
+
+    JPanel panelCerrar = new JPanel();
+    panelCerrar.setBackground(Color.DARK_GRAY);
+    panelCerrar.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 5, 15));
+    panelCerrar.add(cerrarSesionBtn);
+    panelSuperior.add(panelCerrar, BorderLayout.EAST);
+
+    // Pestañas
+    pestañas = new JTabbedPane();
+    pestañas.setBackground(Color.BLACK);
+    pestañas.setForeground(Color.WHITE);
+    pestañas.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+    pestañas.addTab("Funciones", crearPanelFunciones());
+    pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Gestión de usuarios"));
+    pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Análisis y métricas"));
+    pestañas.addTab("Reportes", Reportes.crearPanelReportes());
+
+    // Agregar al panel principal
+    panelPrincipal.add(panelSuperior, BorderLayout.NORTH);
+    panelPrincipal.add(pestañas, BorderLayout.CENTER);
+
+    ventanaAdmin.add(panelPrincipal);
+    ventanaAdmin.setVisible(true);
+}
+
 
     private JPanel crearPanelPlaceholder(String mensaje) {
         JPanel panel = new JPanel();

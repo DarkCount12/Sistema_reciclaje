@@ -4,8 +4,10 @@ import Backend.DAOs.PuntoRecoleccionDAO;
 import Backend.DAOs.UsuarioDAO;
 import Backend.Modelos.PuntoRecoleccion;
 import Backend.Modelos.Usuario;
+import Backend.Servicios.UsuarioServicio;
 import Backend.Utils.Colores;
 import Backend.Utils.Estilos;
+import Frontend.Home;
 import Frontend.PopUp.Recolectar;
 import java.awt.*;
 import java.util.Arrays;
@@ -42,6 +44,18 @@ public class PaginaRecolector {
     titulo.setFont(new Font("Arial", Font.BOLD, 24));
     titulo.setForeground(Color.WHITE);
     titulo.setBorder(BorderFactory.createEmptyBorder(20, 20, 0, 0));
+
+    //Cerrar Sesion
+    JButton cerrarSesionBtn = Estilos.crearBotonConImagen(40, 40, "imagenes\\cerrar_sesion.png");
+    cerrarSesionBtn.setBounds(100, 23, cerrarSesionBtn.getPreferredSize().width, cerrarSesionBtn.getPreferredSize().height);
+
+       cerrarSesionBtn.addActionListener(e -> {
+            UsuarioServicio.desactivarEstado();
+            ventanaRecolector.dispose();
+            java.awt.EventQueue.invokeLater(() -> {
+                Home.main(new String[0]);
+            });
+        });
 
     // JLabel del punto actual
     puntoActual = new JLabel();
@@ -103,6 +117,7 @@ public class PaginaRecolector {
     headerDerecha.setOpaque(false);
     headerDerecha.add(cambiarPunto);
     headerDerecha.add(puntoActual);
+    headerDerecha.add(cerrarSesionBtn);
 
     encabezado.add(titulo, BorderLayout.WEST);
     encabezado.add(headerDerecha, BorderLayout.EAST);
