@@ -12,7 +12,7 @@ public class ListadeMateriales{
 
 
 public static void main(String[] args) {
-    new ListadeMateriales(1, 1);
+    new ListadeMateriales(1, 2);
 }
 
 
@@ -42,7 +42,8 @@ public  ListadeMateriales(int idU, int idP) {
     // DAO para obtener datos
 PuntoRecoleccionDAO dao = new PuntoRecoleccionDAO();
 // Cargar tipos de material en el JComboBox
-Map<String, Integer> tiposMaterial = dao.obtenerTiposMaterial();
+Map<String, Integer> tiposMaterial = dao.obtenerMaterialesPorPunto2(idP);
+
 JComboBox<String> comboMateriales = new JComboBox<>();
 for (Map.Entry<String, Integer> entry : tiposMaterial.entrySet()) {
     String categoria = entry.getKey();

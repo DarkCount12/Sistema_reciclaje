@@ -2,10 +2,12 @@ package Backend.DAOs;
 
 import Backend.ConexionBD;
 import Backend.Modelos.Puntaje;
+import Backend.Modelos.Rol;
 import Backend.Modelos.Usuario;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class Usuario2DAO implements CrudDAO<Usuario> {
 
@@ -61,6 +63,40 @@ public class Usuario2DAO implements CrudDAO<Usuario> {
 
         return null;
     }
+
+
+    
+     public static int insertarConRetornoId(Usuario usuario) {
+    if (usuario.getNombre() == null || usuario.getNombre().trim().isEmpty() ||
+        usuario.getApellido() == null || usuario.getApellido().trim().isEmpty() ||
+        usuario.getCorreo() == null || usuario.getCorreo().trim().isEmpty() ||
+        usuario.getContrasena() == null || usuario.getContrasena().trim().isEmpty()) {
+
+        throw new IllegalArgumentException("Nombre, apellido, correo y contraseña no pueden estar vacíos.");
+    }
+
+    String sql = "INSERT INTO Usuario (nombre, apellido, correo, contrasena, telefono) VALUES (?, ?, ?, ?, ?)";
+
+    try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        stmt.setString(1, usuario.getNombre());
+        stmt.setString(2, usuario.getApellido());
+        stmt.setString(3, usuario.getCorreo());
+        stmt.setString(4, usuario.getContrasena());
+        stmt.setString(5, usuario.getTelefono());
+        stmt.executeUpdate();
+
+        ResultSet rs = stmt.getGeneratedKeys();
+        if (rs.next()) {
+            return rs.getInt(1); // Retorna el ID generado
+        } else {
+            throw new RuntimeException("No se pudo obtener el ID del usuario insertado.");
+        }
+
+    } catch (SQLException e) {
+        throw new RuntimeException("Error al insertar usuario: " + e.getMessage(), e);
+    }
+}
+
 
     @Override
     public void insertar(Usuario usuario) {
@@ -223,6 +259,49 @@ public Puntaje obtenerPuntajeDeUsuario(int idUsuario) {
 }
 
 
+public List<Rol> obtenerTodosLosRoles() {
+    List<Rol> roles = new ArrayList<>();
+    try (Connection conn = ConexionBD.obtenerConexion()) {
+        String sql = "SELECT id_rol, nombre_rol FROM Rol";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            Rol rol = new Rol();
+            rol.setIdRol(rs.getInt("id_rol"));
+            rol.setNombreRol(rs.getString("nombre_rol"));
+            roles.add(rol);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return roles;
+}
+
+
+
+public void insertarUsuarioRol(int idUsuario, int idRol) {
+    try (Connection conn = ConexionBD.obtenerConexion()) {
+        String sql = "INSERT INTO Usuario_Rol (id_usuario, id_rol, fecha_asignacion) VALUES (?, ?, NOW())";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, idUsuario);
+        stmt.setInt(2, idRol);
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+public void eliminarUsuarioRol(int idUsuario) {
+    try (Connection conn = ConexionBD.obtenerConexion()) {
+        String sql = "DELETE FROM Usuario_Rol WHERE id_usuario = ?";
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        stmt.setInt(1, idUsuario);
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
 
 
 

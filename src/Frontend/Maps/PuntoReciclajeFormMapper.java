@@ -8,9 +8,6 @@ import java.util.Map;
 import javax.swing.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-
-import javax.swing.JSpinner;
-import javax.swing.SpinnerDateModel;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
@@ -95,6 +92,30 @@ public class PuntoReciclajeFormMapper implements FormMapper<PuntoReciclaje> {
     }
 
 
+    private void abrirMapaConTodosLosPuntos() {
+        JDialog mapaDialog = new JDialog();
+        mapaDialog.setTitle("Todos los Puntos de Reciclaje");
+        mapaDialog.setSize(600, 400);
+        mapaDialog.setLocationRelativeTo(null);
+
+        // Obtenemos todos los puntos de la BD
+        Backend.DAOs.PuntoReciclajeDAO dao = new Backend.DAOs.PuntoReciclajeDAO();
+        java.util.List<PuntoReciclaje> puntos = dao.obtenerTodosLosPuntos();
+
+        // Convertimos a GeoPosition
+        java.util.List<org.jxmapviewer.viewer.GeoPosition> posiciones = new ArrayList<>();
+        for (PuntoReciclaje p : puntos) {
+            posiciones.add(new org.jxmapviewer.viewer.GeoPosition(p.getLatitud(), p.getLongitud()));
+        }
+
+        // Creamos el panel del mapa con puntos marcados
+        MapSelectorPanel panelMapa = new MapSelectorPanel();
+        panelMapa.mostrarPuntos(posiciones); // Llamamos al nuevo método que vas a crear abajo
+
+        mapaDialog.add(panelMapa);
+        mapaDialog.setModal(true);
+        mapaDialog.setVisible(true);
+    }
 
 
 

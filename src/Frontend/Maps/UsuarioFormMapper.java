@@ -1,15 +1,17 @@
 package Frontend.Maps;
 
 import Backend.Modelos.Usuario;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.*;
+
+
 
 public class UsuarioFormMapper implements FormMapper<Usuario> {
 
     @Override
     public Map<String, JComponent> crearCampos(Usuario usuario) {
-        Map<String, JComponent> campos = new HashMap<>();
+        Map<String, JComponent> campos = new LinkedHashMap<>();
 
         JTextField campoNombre = new JTextField(usuario != null ? usuario.getNombre() : "");
         JTextField campoApellido = new JTextField(usuario != null ? usuario.getApellido() : "");
@@ -34,7 +36,6 @@ public class UsuarioFormMapper implements FormMapper<Usuario> {
         String contrasena = new String(((JPasswordField) campos.get("Contraseña")).getPassword());
         String telefono = ((JTextField) campos.get("Teléfono")).getText();
 
-
         return new Usuario(nombre, apellido, correo, contrasena, telefono);
     }
 
@@ -43,3 +44,4 @@ public class UsuarioFormMapper implements FormMapper<Usuario> {
         return usuario.getId();
     }
 }
+

@@ -2,6 +2,7 @@ package Frontend.Maps;
 
 import Backend.DAOs.Usuario2DAO;
 import Backend.Modelos.Puntaje;
+import Backend.Modelos.Rol;
 import Backend.Modelos.Usuario;
 import java.awt.*;
 import java.util.List;
@@ -25,6 +26,8 @@ public class UsuarioCrudPanel extends JPanel {
     private JLabel lblRol;
     private JLabel lblPuntaje;
 
+    private JComboBox<Rol> comboRolFormulario;
+
     public UsuarioCrudPanel() {
         initUI();
         cargarRoles();
@@ -34,7 +37,6 @@ public class UsuarioCrudPanel extends JPanel {
     private void initUI() {
         setLayout(new BorderLayout());
 
-        // PANEL FILTROS ARRIBA
         JPanel panelFiltros = new JPanel(new FlowLayout(FlowLayout.LEFT));
         txtBusqueda = new JTextField(20);
         comboRoles = new JComboBox<>();
@@ -49,13 +51,13 @@ public class UsuarioCrudPanel extends JPanel {
 
         add(panelFiltros, BorderLayout.NORTH);
 
-        // TABLA DE USUARIOS
-        tablaModel = new DefaultTableModel(new String[]{"ID", "Nombre", "Apellido", "Correo", "Teléfono"}, 0) {
+        tablaModel = new DefaultTableModel(new String[]{"ID", "Nombre", "Apellido", "Correo", "Contraseña", "Teléfono"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // Evitar edición directa
+                return false;
             }
         };
+
         tablaUsuarios = new JTable(tablaModel);
         tablaUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -63,7 +65,6 @@ public class UsuarioCrudPanel extends JPanel {
         scrollTabla.setPreferredSize(new Dimension(600, 300));
         add(scrollTabla, BorderLayout.CENTER);
 
-        // PANEL FORMULARIO Y DATOS EXTRA
         JPanel panelInferior = new JPanel(new BorderLayout());
 
         panelFormulario = new JPanel(new GridLayout(0, 2));
@@ -81,7 +82,6 @@ public class UsuarioCrudPanel extends JPanel {
 
         add(panelInferior, BorderLayout.SOUTH);
 
-        // BOTONES CRUD
         JPanel panelBotones = new JPanel();
         JButton btnAgregar = new JButton("Agregar");
         JButton btnEditar = new JButton("Editar");
@@ -92,7 +92,6 @@ public class UsuarioCrudPanel extends JPanel {
         panelBotones.add(btnEliminar);
         add(panelBotones, BorderLayout.WEST);
 
-        // EVENTOS
         btnBuscar.addActionListener(e -> buscarUsuarios());
         btnAgregar.addActionListener(e -> mostrarFormulario(null, "add"));
         btnEditar.addActionListener(e -> {
@@ -115,6 +114,7 @@ public class UsuarioCrudPanel extends JPanel {
                 if (usuario != null) {
                     int resp = JOptionPane.showConfirmDialog(this, "¿Eliminar usuario seleccionado?", "Confirmar", JOptionPane.YES_NO_OPTION);
                     if (resp == JOptionPane.YES_OPTION) {
+                        Usuario2DAO.eliminarUsuarioRol(id);
                         Usuario2DAO.eliminar(id);
                         cargarUsuarios();
                         limpiarDatosExtra();
@@ -134,11 +134,10 @@ public class UsuarioCrudPanel extends JPanel {
     }
 
     private void cargarRoles() {
-        
-        comboRoles.addItem("Admin");
-        comboRoles.addItem("Usuario");
-        comboRoles.addItem("Recolector");
-       
+        List<Rol> roles = Usuario2DAO.obtenerTodosLosRoles();
+        for (Rol rol : roles) {
+            comboRoles.addItem(rol.getNombreRol());
+        }
     }
 
     private void cargarUsuarios() {
@@ -157,20 +156,14 @@ public class UsuarioCrudPanel extends JPanel {
         if (texto.isEmpty() && !filtrarRol) {
             usuarios = Usuario2DAO.obtenerTodos();
         } else if (filtrarRol && texto.isEmpty()) {
-            // Buscar solo por rol
-            // Aquí necesitarás convertir el nombre de rol a id, o hacer otro método en DAO para buscar por nombre rol
-            // Para demo, asumamos un método ficticio que retorna usuarios por nombre rol:
             usuarios = Usuario2DAO.buscarPorRolNombre(rolSeleccionado);
         } else if (!filtrarRol) {
-            // Buscar solo por texto
             usuarios = Usuario2DAO.buscarPorNombreApellidoOCorreo(texto);
         } else {
-            // Buscar por texto y por rol combinados (puedes hacer la consulta SQL combinada o filtrar en java)
-            // Para simplicidad, filtramos en Java:
             List<Usuario> porTexto = Usuario2DAO.buscarPorNombreApellidoOCorreo(texto);
             usuarios = porTexto.stream()
-                .filter(u -> rolSeleccionado.equals(Usuario2DAO.obtenerRolDeUsuario(u.getId())))
-                .toList();
+                    .filter(u -> rolSeleccionado.equals(Usuario2DAO.obtenerRolDeUsuario(u.getId())))
+                    .toList();
         }
 
         cargarUsuariosEnTabla(usuarios);
@@ -185,10 +178,13 @@ public class UsuarioCrudPanel extends JPanel {
                     u.getNombre(),
                     u.getApellido(),
                     u.getCorreo(),
+                    u.getContrasena(),  
                     u.getTelefono()
             });
         }
     }
+
+
 
     private void mostrarFormulario(Usuario usuario, String modo) {
         panelFormulario.removeAll();
@@ -199,15 +195,39 @@ public class UsuarioCrudPanel extends JPanel {
             panelFormulario.add(entry.getValue());
         }
 
+        comboRolFormulario = new JComboBox<>();
+        List<Rol> roles = Usuario2DAO.obtenerTodosLosRoles();
+        for (Rol rol : roles) {
+            comboRolFormulario.addItem(rol);
+        }
+
+        if ("update".equals(modo)) {
+            String rolActual = Usuario2DAO.obtenerRolDeUsuario(usuario.getId());
+            for (int i = 0; i < comboRolFormulario.getItemCount(); i++) {
+                if (comboRolFormulario.getItemAt(i).getNombreRol().equals(rolActual)) {
+                    comboRolFormulario.setSelectedIndex(i);
+                    break;
+                }
+            }
+        }
+
+        panelFormulario.add(new JLabel("Rol:"));
+        panelFormulario.add(comboRolFormulario);
+
         JButton btnGuardar = new JButton("Guardar");
         btnGuardar.addActionListener(e -> {
             try {
                 Usuario nuevo = formMapper.construirDesdeCampos(campos);
+                Rol rolSeleccionado = (Rol) comboRolFormulario.getSelectedItem();
+
                 if ("add".equals(modo)) {
-                    Usuario2DAO.insertar(nuevo);
+                    int nuevoId = Usuario2DAO.insertarConRetornoId(nuevo);
+                    Usuario2DAO.insertarUsuarioRol(nuevoId, rolSeleccionado.getIdRol());
                     JOptionPane.showMessageDialog(this, "Usuario añadido correctamente.");
                 } else {
                     Usuario2DAO.actualizar(usuario.getId(), nuevo);
+                    Usuario2DAO.eliminarUsuarioRol(usuario.getId());
+                    Usuario2DAO.insertarUsuarioRol(usuario.getId(), rolSeleccionado.getIdRol());
                     JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.");
                 }
                 cargarUsuarios();
@@ -226,7 +246,7 @@ public class UsuarioCrudPanel extends JPanel {
         repaint();
     }
 
-   private void mostrarDatosExtraSeleccion() {
+    private void mostrarDatosExtraSeleccion() {
         int fila = tablaUsuarios.getSelectedRow();
         if (fila >= 0) {
             int id = (int) tablaModel.getValueAt(fila, 0);
@@ -237,8 +257,8 @@ public class UsuarioCrudPanel extends JPanel {
 
             if (puntaje != null) {
                 lblPuntaje.setText("Totales: " + puntaje.getPuntosTotales() +
-                                " | Ganados: " + puntaje.getPuntosGanados() +
-                                " | Gastados: " + puntaje.getPuntosGastados());
+                        " | Ganados: " + puntaje.getPuntosGanados() +
+                        " | Gastados: " + puntaje.getPuntosGastados());
             } else {
                 lblPuntaje.setText("Puntaje: No disponible");
             }
@@ -246,7 +266,6 @@ public class UsuarioCrudPanel extends JPanel {
             limpiarDatosExtra();
         }
     }
-
 
     private void limpiarDatosExtra() {
         lblRol.setText("Rol: ");
