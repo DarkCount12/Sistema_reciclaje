@@ -13,6 +13,12 @@ public class Puntaje {
         this.puntosGanados = puntosGanados;
     }
 
+    public Puntaje(int puntosTotales, int puntosGanados, int puntosGastados) {
+        this.puntosTotales = puntosTotales;
+        this.puntosGanados = puntosGanados;
+        this.puntosGastados = puntosGastados;
+    }
+
     public int getIdUsuario() {
         return idUsuario;
     }
