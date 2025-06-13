@@ -2,7 +2,6 @@ package Backend.DAOs;
 
 import Backend.ConexionBD;
 import Backend.Modelos.PuntoReciclaje;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;

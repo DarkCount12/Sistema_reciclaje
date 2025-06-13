@@ -1,27 +1,29 @@
 package Frontend.Page;
 
-import Frontend.Maps.CrudPanel;
-import Frontend.Maps.RecompensaFormMapper;
+import Backend.DAOs.Descuento2DAO;
+import Backend.DAOs.PuntoReciclaje2DAO;
+import Backend.DAOs.Recompensa2DAO;
+import Backend.DAOs.TipoMaterial2DAO;
+import Backend.DAOs.Usuario2DAO;
+import Backend.Modelos.Descuento;
+import Backend.Modelos.PuntoReciclaje;
+import Backend.Modelos.Recompensa;
+import Backend.Modelos.TipoMaterial;
+import Backend.Modelos.Usuario;
+import Backend.Servicios.UsuarioServicio;
+import Backend.Utils.Estilos;
+import Frontend.Home;
+import Frontend.Maps.*;
 import Frontend.Page.Secciones.Reportes;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-
-import Frontend.Home;
-import Frontend.Maps.*;
-import Backend.DAOs.CrudDAO;
-
-import Backend.DAOs.Recompensa2DAO;
-import Backend.Modelos.Recompensa;
-import Backend.Servicios.UsuarioServicio;
-import Backend.Utils.Estilos;
 
 public class PaginaAdministrador {
     public static JFrame ventanaAdmin;
@@ -37,7 +39,7 @@ public class PaginaAdministrador {
     }
 
    public void inicializar() {
-    ventanaAdmin.setSize(1000, 600);
+    ventanaAdmin.setSize(1000, 705);
     ventanaAdmin.setLocationRelativeTo(null);
     ventanaAdmin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     ventanaAdmin.setLayout(new BorderLayout());
@@ -85,7 +87,7 @@ public class PaginaAdministrador {
     pestañas.setFont(new Font("SansSerif", Font.BOLD, 14));
 
     pestañas.addTab("Funciones", crearPanelFunciones());
-    pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Gestión de usuarios"));
+    pestañas.addTab("Usuarios", new UsuarioCrudPanel());
     pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Análisis y métricas"));
     pestañas.addTab("Reportes", Reportes.crearPanelReportes());
 
@@ -107,16 +109,41 @@ public class PaginaAdministrador {
         return panel;
     }
 
-
 public JPanel crearPanelFunciones() {
     JPanel panel = new JPanel(new BorderLayout());
 
-    JComboBox<String> selectorTabla = new JComboBox<>(new String[] {
+    // Subtítulo
+    JLabel lblSeleccionTabla = new JLabel("Seleccione una tabla:");
+    lblSeleccionTabla.setFont(new Font("SansSerif", Font.BOLD, 14));
+    lblSeleccionTabla.setForeground(Color.DARK_GRAY);
+    lblSeleccionTabla.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 0, 10));
+
+    // ComboBox
+    JComboBox<String> selectorTabla = new JComboBox<>(new String[]{
         "Recompensa", "Puntos de Reciclaje", "Descuento", "Tipo Material"
     });
+    selectorTabla.setFont(new Font("SansSerif", Font.PLAIN, 14));
+    selectorTabla.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 10, 2, 10));
 
+    // Título dinámico
+    JLabel tituloTabla = new JLabel("Seleccione una opción");
+    tituloTabla.setFont(new Font("SansSerif", Font.BOLD, 18));
+    tituloTabla.setForeground(new Color(34, 40, 49));
+    tituloTabla.setHorizontalAlignment(JLabel.CENTER);
+    tituloTabla.setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 10, 10, 10));
+
+    // Agrupar título + selector + comboBox en un solo panel superior
+    JPanel panelSuperior = new JPanel(new BorderLayout());
+    JPanel panelSelector = new JPanel(new BorderLayout());
+    panelSelector.add(lblSeleccionTabla, BorderLayout.NORTH);
+    panelSelector.add(selectorTabla, BorderLayout.CENTER);
+    panelSuperior.add(panelSelector, BorderLayout.NORTH);
+    panelSuperior.add(tituloTabla, BorderLayout.SOUTH);  // Mucho más compacto
+
+    // Panel CRUD
     JPanel panelCRUD = new JPanel(new BorderLayout());
 
+    // Lógica del selector
     selectorTabla.addActionListener(e -> {
         String seleccion = (String) selectorTabla.getSelectedItem();
         panelCRUD.removeAll();
@@ -124,19 +151,32 @@ public JPanel crearPanelFunciones() {
         switch (seleccion) {
             case "Recompensa":
                 panelCRUD.add(new CrudPanel<Recompensa>(new Recompensa2DAO(), new RecompensaFormMapper()), BorderLayout.CENTER);
-
+                tituloTabla.setText("Tabla de Recompensas");
                 break;
-            // Agregar casos para las otras tablas
+            case "Puntos de Reciclaje":
+                panelCRUD.add(new CrudPanel<PuntoReciclaje>(new PuntoReciclaje2DAO(), new PuntoReciclajeFormMapper()), BorderLayout.CENTER);
+                tituloTabla.setText("Tabla de Puntos de Reciclaje");
+                break;
+            case "Tipo Material":
+                panelCRUD.add(new CrudPanel<TipoMaterial>(new TipoMaterial2DAO(), new TipoMaterialFormMapper()), BorderLayout.CENTER);
+                tituloTabla.setText("Tabla de Tipos de Material");
+                break;
+            case "Descuento":
+                panelCRUD.add(new CrudPanel<Descuento>(new Descuento2DAO(), new DescuentoFormMapper()), BorderLayout.CENTER);
+                tituloTabla.setText("Tabla de Descuentos");
+                break;
         }
 
         panelCRUD.revalidate();
         panelCRUD.repaint();
     });
 
-    panel.add(selectorTabla, BorderLayout.NORTH);
+    panel.add(panelSuperior, BorderLayout.NORTH);
     panel.add(panelCRUD, BorderLayout.CENTER);
+
     return panel;
 }
+
 
 
 }

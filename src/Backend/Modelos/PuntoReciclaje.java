@@ -1,5 +1,8 @@
 package Backend.Modelos;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PuntoReciclaje {
     private int idPunto;
     private String nombre;
@@ -8,6 +11,9 @@ public class PuntoReciclaje {
     private double latitud;
     private double longitud;
 
+    // NUEVA PROPIEDAD
+    private List<Integer> tiposMateriales;
+
     public PuntoReciclaje(int idPunto, String nombre, String ubicacion, String horario, double latitud, double longitud) {
         this.idPunto = idPunto;
         this.nombre = nombre;
@@ -15,6 +21,7 @@ public class PuntoReciclaje {
         this.horario = horario;
         this.latitud = latitud;
         this.longitud = longitud;
+        this.tiposMateriales = new ArrayList<>();
     }
 
     public int getIdPunto() {
@@ -63,5 +70,23 @@ public class PuntoReciclaje {
 
     public void setLongitud(double longitud) {
         this.longitud = longitud;
+    }
+
+    public List<Integer> getTiposMateriales() {
+        return tiposMateriales;
+    }
+
+    public void setTiposMateriales(List<Integer> tiposMateriales) {
+        this.tiposMateriales = tiposMateriales;
+    }
+
+    public void agregarTipoMaterial(int idTipoMaterial) {
+        if (!tiposMateriales.contains(idTipoMaterial)) {
+            tiposMateriales.add(idTipoMaterial);
+        }
+    }
+
+    public void eliminarTipoMaterial(int idTipoMaterial) {
+        tiposMateriales.remove(Integer.valueOf(idTipoMaterial));
     }
 }

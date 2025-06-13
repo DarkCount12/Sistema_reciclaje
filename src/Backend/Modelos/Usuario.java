@@ -13,6 +13,14 @@ public class Usuario {
         this.telefono = telefono;
     }
 
+      public Usuario(String nombre, String apellido, String correo, String contrasena, String telefono) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.correo = correo;
+        this.contrasena = contrasena;
+        this.telefono = telefono;
+    }
+
    public int getId() {
         return id;
     }
