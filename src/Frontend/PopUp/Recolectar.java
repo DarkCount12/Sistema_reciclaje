@@ -80,6 +80,7 @@ public static void main(String[] args) {
         int idP =idpunto;
        
         new ListadeMateriales(idU,idP);
+        dispose();
          });
 
         add(panel);

@@ -80,4 +80,16 @@ public class MapSelectorPanel extends JPanel {
     public void setMapClickListener(MapClickListener listener) {
         this.clickListener = listener;
     }
+    
+    public void mostrarPuntos(java.util.List<GeoPosition> posiciones) {
+    java.util.Set<Waypoint> waypoints = new java.util.HashSet<>();
+    for (GeoPosition pos : posiciones) {
+        waypoints.add(new DefaultWaypoint(pos));
+    }
+
+    WaypointPainter<Waypoint> painter = new WaypointPainter<>();
+    painter.setWaypoints(waypoints);
+    mapViewer.setOverlayPainter(painter);
+}
+
 }

@@ -3,13 +3,13 @@ package Frontend.Page;
 import Backend.DAOs.Descuento2DAO;
 import Backend.DAOs.PuntoReciclaje2DAO;
 import Backend.DAOs.Recompensa2DAO;
+import Backend.DAOs.Rol2DAO;
 import Backend.DAOs.TipoMaterial2DAO;
-import Backend.DAOs.Usuario2DAO;
 import Backend.Modelos.Descuento;
 import Backend.Modelos.PuntoReciclaje;
 import Backend.Modelos.Recompensa;
+import Backend.Modelos.Rol;
 import Backend.Modelos.TipoMaterial;
-import Backend.Modelos.Usuario;
 import Backend.Servicios.UsuarioServicio;
 import Backend.Utils.Estilos;
 import Frontend.Home;
@@ -120,7 +120,7 @@ public JPanel crearPanelFunciones() {
 
     // ComboBox
     JComboBox<String> selectorTabla = new JComboBox<>(new String[]{
-        "Recompensa", "Puntos de Reciclaje", "Descuento", "Tipo Material"
+        "Recompensa", "Puntos de Reciclaje", "Descuento", "Tipo Material" , "Rol"
     });
     selectorTabla.setFont(new Font("SansSerif", Font.PLAIN, 14));
     selectorTabla.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 10, 2, 10));
@@ -165,6 +165,11 @@ public JPanel crearPanelFunciones() {
                 panelCRUD.add(new CrudPanel<Descuento>(new Descuento2DAO(), new DescuentoFormMapper()), BorderLayout.CENTER);
                 tituloTabla.setText("Tabla de Descuentos");
                 break;
+            case "Rol":
+                panelCRUD.add(new CrudPanel<Rol>(new Rol2DAO(), new RolFormMapper()), BorderLayout.CENTER);
+                tituloTabla.setText("Tabla de Roles");
+                break;
+
         }
 
         panelCRUD.revalidate();

@@ -144,6 +144,33 @@ public List<String> obtenerMaterialesPorPunto(int idPunto) {
     return materiales;
 }
 
+public Map<String, Integer> obtenerMaterialesPorPunto2(int idPunto) {
+    Map<String, Integer> materiales = new LinkedHashMap<>();
+    String sql = """
+        SELECT tm.id_tipo_material, tm.categoria
+        FROM Punto_Tipo_Material ptm
+        JOIN Tipo_Material tm ON ptm.id_tipo_material = tm.id_tipo_material
+        WHERE ptm.id_punto = ?
+    """;
+
+    try (Connection conn = ConexionBD.obtenerConexion();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, idPunto);
+        ResultSet rs = stmt.executeQuery();
+
+        while (rs.next()) {
+            int id = rs.getInt("id_tipo_material");
+            String categoria = rs.getString("categoria");
+            materiales.put(categoria, id);
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return materiales;
+}
 
 
 

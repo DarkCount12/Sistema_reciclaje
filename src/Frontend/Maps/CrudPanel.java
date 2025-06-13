@@ -6,9 +6,13 @@ import Backend.DAOs.PuntoTipoMaterialDAO;
 import Backend.Modelos.Descuento;
 import Backend.Modelos.PuntoReciclaje;
 import Backend.Modelos.Recompensa;
+import Backend.Modelos.Rol;
 import Backend.Modelos.TipoMaterial;
 import Backend.Modelos.Usuario;
+import Frontend.Components.MapSelectorPanel;
+
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.*; // Para Map<String, JComponent>
 import javax.swing.table.DefaultTableModel;
@@ -16,6 +20,8 @@ import javax.swing.table.DefaultTableModel;
 public class CrudPanel<T> extends JPanel {
     private CrudDAO<T> dao;
     private FormMapper<T> formMapper;
+    private JButton btnVerMapaCompleto;
+
 
  /////   private JComboBox<T> comboItems;
     private JTable tablaItems;
@@ -45,11 +51,13 @@ public class CrudPanel<T> extends JPanel {
         btnAgregar = new JButton("Agregar");
         btnActualizar = new JButton("Actualizar");
         btnEliminar = new JButton("Eliminar");
+        btnVerMapaCompleto = new JButton("Ver Mapa Completo"); // solo para puntos de recoleccion
 
         JPanel acciones = new JPanel();
         acciones.add(btnAgregar);
         acciones.add(btnActualizar);
         acciones.add(btnEliminar);
+        acciones.add(btnVerMapaCompleto);
 
         panelFormulario = new JPanel(new GridLayout(0, 2));
         panelFormulario.setVisible(false);
@@ -101,6 +109,15 @@ public class CrudPanel<T> extends JPanel {
             }
         }
     });
+
+
+            if (formMapper instanceof PuntoReciclajeFormMapper) {
+            btnVerMapaCompleto.addActionListener(e -> abrirMapaConTodosLosPuntos());
+
+        } else {
+            btnVerMapaCompleto.setVisible(false); // Si no es un PuntoReciclaje, lo ocultas
+        }
+
 
     }
 
@@ -235,7 +252,18 @@ private void actualizarLista() {
                     u.getTelefono()
                 });
             }
+        }else if (ejemplo instanceof Rol r) {
+            tablaModel.setColumnIdentifiers(new String[]{"ID", "Nombre", "Descripción"});
+            for (T item : dao.obtenerTodos()) {
+                r = (Rol) item;
+                tablaModel.addRow(new Object[]{
+                    r.getIdRol(),
+                    r.getNombreRol(),
+                    r.getDescripcion()
+                });
+            }
         }
+
 
 
     }
@@ -245,6 +273,30 @@ private void actualizarLista() {
 
 
 
+    private void abrirMapaConTodosLosPuntos() {
+        JDialog mapaDialog = new JDialog();
+        mapaDialog.setTitle("Todos los Puntos de Reciclaje");
+        mapaDialog.setSize(600, 400);
+        mapaDialog.setLocationRelativeTo(null);
+
+        // Obtenemos todos los puntos de la BD
+        Backend.DAOs.PuntoReciclajeDAO dao = new Backend.DAOs.PuntoReciclajeDAO();
+        java.util.List<PuntoReciclaje> puntos = dao.obtenerTodosLosPuntos();
+
+        // Convertimos a GeoPosition
+        java.util.List<org.jxmapviewer.viewer.GeoPosition> posiciones = new ArrayList<>();
+        for (PuntoReciclaje p : puntos) {
+            posiciones.add(new org.jxmapviewer.viewer.GeoPosition(p.getLatitud(), p.getLongitud()));
+        }
+
+        // Creamos el panel del mapa con puntos marcados
+        MapSelectorPanel panelMapa = new MapSelectorPanel();
+        panelMapa.mostrarPuntos(posiciones); // Llamamos al nuevo método que vas a crear abajo
+
+        mapaDialog.add(panelMapa);
+        mapaDialog.setModal(true);
+        mapaDialog.setVisible(true);
+    }
 
 
 

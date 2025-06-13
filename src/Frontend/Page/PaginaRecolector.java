@@ -1,7 +1,9 @@
 package Frontend.Page;
 
+import Backend.DAOs.PuntajeDAO;
 import Backend.DAOs.PuntoRecoleccionDAO;
 import Backend.DAOs.UsuarioDAO;
+import Backend.Modelos.Puntaje;
 import Backend.Modelos.PuntoRecoleccion;
 import Backend.Modelos.Usuario;
 import Backend.Servicios.UsuarioServicio;
@@ -161,7 +163,7 @@ private JPanel crearPanelRecolectarFusionado() {
     resultadoArea.setLineWrap(true);
     resultadoArea.setWrapStyleWord(true);
     resultadoArea.setFont(new Font("Arial", Font.PLAIN, 16));
-    resultadoArea.setBounds(200, 80, 420, 100);
+    resultadoArea.setBounds(200, 80, 450, 120);
     panel.add(resultadoArea);
 
     JButton botonRecolectar = Estilos.crearBoton(Colores.YELLOW, Colores.BLACK, "Nuevo Reciclaje", 155, 30);
@@ -178,6 +180,9 @@ private JPanel crearPanelRecolectarFusionado() {
         if (!correo.isEmpty()) {
             UsuarioDAO dao = new UsuarioDAO();
             Usuario usuario = dao.obtenerUsuarioPorCorreo(correo);
+            PuntajeDAO dao1 = new PuntajeDAO();
+            Puntaje k = dao1.obtenerPuntajePorCorreo(correo);
+
             if (usuario != null) {
                 usuarioActual[0] = usuario;
                 idUsuario=usuario.getId();
@@ -185,7 +190,12 @@ private JPanel crearPanelRecolectarFusionado() {
                 resultadoArea.setText("ID del recolector: " + usuario.getId() + "\n" +
                         "Nombre: " + usuario.getNombre() + " " + usuario.getApellido() + "\n" +
                         "Teléfono: " + usuario.getTelefono() + "\n" +
-                        "Puntaje: " + dao.obtenerPuntajeporId(usuario.getId()));
+                        "Puntaje Total: " + k.getPuntosTotales() + "\n" +
+                        "Puntos Ganados: " + k.getPuntosGanados() + "\n" +
+                        "Puntos Gastados: " + k.getPuntosGastados()
+
+                        );
+
             } else {
                 usuarioActual[0] = null;
                 botonRecolectar.setEnabled(false);
