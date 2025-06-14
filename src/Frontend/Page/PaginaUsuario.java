@@ -1,16 +1,19 @@
 package Frontend.Page;
 
+import Backend.Modelos.PuntoReciclaje;
 import Backend.Modelos.Recompensa;
 import Backend.Servicios.RecompensaServicio;
 import Backend.Servicios.UsuarioServicio;
 import Backend.Utils.Colores;
 import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
+import Frontend.Components.MapSelectorPanel;
 import Frontend.Components.RotatedLabel;
 import Frontend.Home;
 import Frontend.PopUp.AccederDonaciones;
 import Frontend.PopUp.AccederPerfil;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
@@ -105,6 +108,9 @@ public class PaginaUsuario {
 
     
         });
+        JPanel mapaPanel = createMapaPanel();
+        tabbedPane.addTab("Mapa", mapaPanel);
+
         
         frame.add(panelVertical, BorderLayout.NORTH);
         frame.add(tabbedPane, BorderLayout.CENTER);
@@ -353,6 +359,30 @@ public class PaginaUsuario {
     // Añade aquí componentes o paneles que muestren las donaciones, por ejemplo:
     donacionPanel.add(new AccederDonaciones()); // si AccederDonaciones es un JPanel
     return donacionPanel;
+}
+
+
+private JPanel createMapaPanel() {
+    JPanel mapaPanel = new JPanel();
+    mapaPanel.setLayout(new BorderLayout());
+
+    // Obtenemos todos los puntos de la BD
+    Backend.DAOs.PuntoReciclajeDAO dao = new Backend.DAOs.PuntoReciclajeDAO();
+    java.util.List<PuntoReciclaje> puntos = dao.obtenerTodosLosPuntos();
+
+    // Convertimos a GeoPosition
+    java.util.List<org.jxmapviewer.viewer.GeoPosition> posiciones = new ArrayList<>();
+    for (PuntoReciclaje p : puntos) {
+        posiciones.add(new org.jxmapviewer.viewer.GeoPosition(p.getLatitud(), p.getLongitud()));
+    }
+
+    // Creamos el panel del mapa con puntos marcados
+    MapSelectorPanel panelMapa = new MapSelectorPanel();
+    panelMapa.mostrarPuntos(posiciones);
+
+    mapaPanel.add(panelMapa, BorderLayout.CENTER);
+
+    return mapaPanel;
 }
 
 }

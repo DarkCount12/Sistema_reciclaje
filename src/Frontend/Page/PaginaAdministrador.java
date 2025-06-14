@@ -15,6 +15,8 @@ import Backend.Utils.Estilos;
 import Frontend.Home;
 import Frontend.Maps.*;
 import Frontend.Page.Secciones.Reportes;
+import Frontend.Page.Secciones.ReportesAdicionales;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -88,8 +90,9 @@ public class PaginaAdministrador {
 
     pestañas.addTab("Funciones", crearPanelFunciones());
     pestañas.addTab("Usuarios", new UsuarioCrudPanel());
-    pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Análisis y métricas"));
+   // pestañas.addTab("xxxxxxxx", crearPanelPlaceholder("Análisis y métricas"));
     pestañas.addTab("Reportes", Reportes.crearPanelReportes());
+   // pestañas.addTab("Reportes Avanzados", ReportesAdicionales.crearPanelReportesAdicionales());
 
     // Agregar al panel principal
     panelPrincipal.add(panelSuperior, BorderLayout.NORTH);
