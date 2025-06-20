@@ -406,4 +406,211 @@ public class ReportesServicio {
 
         return 0;
     }
+
+    public int obtenerTotalCanjesPorRecompensa(String tipoRecompensa) {
+        String sql = "SELECT COUNT(*) AS total_canjes " +
+                "FROM Canje c " +
+                "JOIN Recompensa r ON c.id_recompensa = r.id_recompensa " +
+                "WHERE r.nombre LIKE ?";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            stmt.setString(1, "%" + tipoRecompensa + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("total_canjes");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener total canjes por recompensa: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public double obtenerValorRecompensaCanje(String tipoRecompensa) {
+        String sql = "SELECT AVG(" +
+                "CASE " +
+                "WHEN d.id_descuento IS NOT NULL AND c.fecha_canje BETWEEN d.fecha_inicio AND d.fecha_fin " +
+                "THEN ROUND(r.puntos_necesarios * (1 - d.porcentaje_descuento / 100)) " +
+                "WHEN COALESCE(c.puntos_gastados, 0) > 0 " +
+                "THEN c.puntos_gastados " +
+                "ELSE r.puntos_necesarios " +
+                "END) AS valor_promedio " +
+                "FROM Canje c " +
+                "JOIN Recompensa r ON c.id_recompensa = r.id_recompensa " +
+                "LEFT JOIN Descuento d ON r.id_recompensa = d.id_recompensa " +
+                "AND c.fecha_canje BETWEEN d.fecha_inicio AND d.fecha_fin " +
+                "WHERE r.nombre LIKE ?";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            stmt.setString(1, "%" + tipoRecompensa + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return Math.round(rs.getDouble("valor_promedio") * 100.0) / 100.0; // Redondear a 2 decimales
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener valor recompensa canje: " + e.getMessage());
+        }
+
+        return 0.0;
+    }
+
+    public int obtenerTotalKgRecicladoGeneral() {
+        String sql = "SELECT COALESCE(SUM(lm.cantidad_kg), 0) AS total_kg " +
+                "FROM Lista_Material lm";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return (int) Math.round(rs.getDouble("total_kg"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener total kg reciclado general: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int obtenerTotalPuntosGeneradosGeneral() {
+        String sql = "SELECT COALESCE(SUM(lm.cantidad_kg * tm.puntos_kg), 0) AS total_puntos " +
+                "FROM Lista_Material lm " +
+                "JOIN Tipo_Material tm ON lm.id_tipo_material = tm.id_tipo_material";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return (int) Math.round(rs.getDouble("total_puntos"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener total puntos generados general: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int obtenerTotalCO2ReducidoGeneral() {
+        String sql = "SELECT COALESCE(SUM(lm.cantidad_kg * tm.co2_reducido_kg), 0) AS total_co2 " +
+                "FROM Lista_Material lm " +
+                "JOIN Tipo_Material tm ON lm.id_tipo_material = tm.id_tipo_material";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return (int) Math.round(rs.getDouble("total_co2"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener total CO2 reducido general: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+    public int obtenerTotalCanjesTodasRecompensas() {
+        String sql = "SELECT COUNT(*) AS total_canjes FROM Canje";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("total_canjes");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener total canjes todas recompensas: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+
+    public List<Map<String, Object>> obtenerRankingUsuariosPorKgReciclados(int cantidad) {
+        List<Map<String, Object>> resultados = new ArrayList<>();
+        String sql = "SELECT " +
+                "CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario, " +
+                "COALESCE(SUM(lm.cantidad_kg), 0.0) AS total_kg_reciclado, " +
+                "COALESCE(SUM(lm.cantidad_kg * tm.puntos_kg), 0.0) AS total_puntos_generados, " +
+                "COUNT(CASE WHEN r.id_reciclaje IS NOT NULL THEN r.id_reciclaje END) AS total_reciclajes " +
+                "FROM Usuario u " +
+                "LEFT JOIN Reciclaje r ON u.id_usuario = r.id_usuario " +
+                "LEFT JOIN Lista_Material lm ON r.id_reciclaje = lm.id_reciclaje " +
+                "LEFT JOIN Tipo_Material tm ON lm.id_tipo_material = tm.id_tipo_material " +
+                "GROUP BY u.id_usuario, u.nombre, u.apellido " +
+                "ORDER BY total_kg_reciclado DESC " +
+                "LIMIT ?";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            stmt.setInt(1, cantidad);
+            ResultSet rs = stmt.executeQuery();
+
+            int posicion = 1;
+            while (rs.next()) {
+                Map<String, Object> fila = new HashMap<>();
+                fila.put("posicion", posicion);
+                fila.put("nombre_usuario", rs.getString("nombre_usuario"));
+
+                // Asegurar que los valores no sean null
+                double totalKg = rs.getDouble("total_kg_reciclado");
+                double totalPuntos = rs.getDouble("total_puntos_generados");
+                int totalReciclajes = rs.getInt("total_reciclajes");
+
+                fila.put("total_kg_reciclado", totalKg);
+                fila.put("total_puntos_generados", totalPuntos);
+                fila.put("total_reciclajes", totalReciclajes);
+
+                resultados.add(fila);
+                posicion++;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener ranking usuarios por kg reciclados: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return resultados;
+    }
+
+    public List<Map<String, Object>> obtenerRankingRecompensasPorCanjes(int cantidad) {
+        List<Map<String, Object>> resultados = new ArrayList<>();
+        String sql = "SELECT " +
+                "r.nombre AS nombre_recompensa, " +
+                "r.descripcion, " +
+                "r.puntos_necesarios, " +
+                "COUNT(c.id_canje) AS total_canjes, " +
+                "COALESCE(SUM(" +
+                "CASE " +
+                "WHEN d.id_descuento IS NOT NULL AND c.fecha_canje BETWEEN d.fecha_inicio AND d.fecha_fin " +
+                "THEN ROUND(r.puntos_necesarios * (1 - d.porcentaje_descuento / 100)) " +
+                "WHEN COALESCE(c.puntos_gastados, 0) > 0 " +
+                "THEN c.puntos_gastados " +
+                "ELSE r.puntos_necesarios " +
+                "END), 0) AS total_puntos_utilizados " +
+                "FROM Recompensa r " +
+                "LEFT JOIN Canje c ON r.id_recompensa = c.id_recompensa " +
+                "LEFT JOIN Descuento d ON r.id_recompensa = d.id_recompensa " +
+                "AND c.fecha_canje BETWEEN d.fecha_inicio AND d.fecha_fin " +
+                "GROUP BY r.id_recompensa, r.nombre, r.descripcion, r.puntos_necesarios " +
+                "ORDER BY total_canjes DESC, total_puntos_utilizados DESC " +
+                "LIMIT ?";
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+            stmt.setInt(1, cantidad);
+            ResultSet rs = stmt.executeQuery();
+            int posicion = 1;
+            while (rs.next()) {
+                Map<String, Object> fila = new HashMap<>();
+                fila.put("posicion", posicion);
+                fila.put("nombre_recompensa", rs.getString("nombre_recompensa"));
+                fila.put("descripcion", rs.getString("descripcion"));
+                fila.put("puntos_necesarios", rs.getInt("puntos_necesarios"));
+                fila.put("total_canjes", rs.getInt("total_canjes"));
+                fila.put("total_puntos_utilizados", rs.getInt("total_puntos_utilizados"));
+                resultados.add(fila);
+                posicion++;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener ranking recompensas por canjes: " + e.getMessage());
+        }
+        return resultados;
+    }
 }
