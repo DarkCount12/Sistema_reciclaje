@@ -1,10 +1,10 @@
 package Frontend.PopUp;
 
-import Backend.Utils.Estilos;
 import Backend.Utils.Colores;
+import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class AccesoUsuario extends JPanel {
 

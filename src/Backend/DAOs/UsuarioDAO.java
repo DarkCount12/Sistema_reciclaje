@@ -8,7 +8,7 @@ import java.util.List;
 
 public class UsuarioDAO {
 
-    public boolean registrarUsuario(String nombre, String apellido, String correo, String contrasena, String telefono, int rol) {
+  public boolean registrarUsuario(String nombre, String apellido, String correo, String contrasena, String telefono, int rol) {
     String sql = "INSERT INTO Usuario (nombre, apellido, correo, contrasena, telefono) VALUES (?, ?, ?, ?, ?)";
 
     try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -21,11 +21,16 @@ public class UsuarioDAO {
         int filas = stmt.executeUpdate();
 
         if (filas > 0) {
-            // Obtener la clave generada
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
-                int id_usuario = rs.getInt(1); // asumimos que id_usuario es la primera clave generada
-                asignarRol(rol, id_usuario);   // aquí sí puedes pasar el ID correctamente
+                int id_usuario = rs.getInt(1); // Obtener el ID del nuevo usuario
+
+                // Registrar el puntaje inicial en cero
+                registrarPuntajeInicial(id_usuario);
+
+                // Asignar el rol al usuario
+                asignarRol(rol, id_usuario);
+
                 return true;
             }
         }
@@ -35,6 +40,19 @@ public class UsuarioDAO {
     }
 
     return false;
+}
+
+
+
+private void registrarPuntajeInicial(int id_usuario) {
+    String sql = "INSERT INTO Puntaje (id_usuario, puntos_totales, puntos_gastados, puntos_ganados) VALUES (?, 0, 0, 0)";
+
+    try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
+        stmt.setInt(1, id_usuario);
+        stmt.executeUpdate();
+    } catch (SQLException e) {
+        System.out.println("Error al registrar puntaje inicial: " + e.getMessage());
+    }
 }
 
 

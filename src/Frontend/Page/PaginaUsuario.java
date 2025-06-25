@@ -1,19 +1,26 @@
 package Frontend.Page;
 
-import Backend.Modelos.PuntoReciclaje;
 import Backend.Modelos.Recompensa;
+import Backend.Modelos.Puntaje;
+import Backend.Modelos.Canje;
+import Backend.Modelos.Descuento;
+import Backend.DAOs.PuntajeDAO;
+import Backend.DAOs.CanjeDAO;
+import Backend.DAOs.Descuento2DAO;
+import Backend.DAOs.UsuarioDAO;
 import Backend.Servicios.RecompensaServicio;
 import Backend.Servicios.UsuarioServicio;
+import Backend.Servicios.Cache; // Añadido el import correcto
 import Backend.Utils.Colores;
 import Backend.Utils.Estilos;
 import Backend.Utils.VisualizadorPanel;
-import Frontend.Components.MapSelectorPanel;
 import Frontend.Components.RotatedLabel;
 import Frontend.Home;
 import Frontend.PopUp.AccederDonaciones;
 import Frontend.PopUp.AccederPerfil;
 import java.awt.*;
-import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import javax.swing.*;
 
@@ -21,13 +28,17 @@ public class PaginaUsuario {
 
     private JFrame frame;
     private RecompensaServicio recompensaServicio = new RecompensaServicio();
+    private PuntajeDAO puntajeDAO = new PuntajeDAO();
+    private CanjeDAO canjeDAO = new CanjeDAO();
+    private Descuento2DAO descuentoDAO = new Descuento2DAO();
+    private UsuarioDAO usuarioDAO = new UsuarioDAO();
     private int currentPage = 1;
     private static final int REWARDS_PER_PAGE = 12;
-    private static final int TOTAL_REWARDS = 21;
 
     public static void main(String[] args) {
         new PaginaUsuario();
     }
+
     public PaginaUsuario() {
         frame = new JFrame("Sistema de Reciclaje - Usuario");
         inicializar();
@@ -92,7 +103,6 @@ public class PaginaUsuario {
         panelAmarillo.add(cerrarSesionBtn);
         lineaAzulSuperior.add(panelAmarillo);
 
-        
         // pestañass
         JTabbedPane tabbedPane = new JTabbedPane();
         JPanel perfilPanel = createPerfilPanel();
@@ -100,18 +110,13 @@ public class PaginaUsuario {
 
         JPanel rewardsPanel = createRewardsPanel();
         tabbedPane.addTab("Recompensas", rewardsPanel);
-        JPanel donacionPanel = createDonacionesPanel(); 
+        JPanel donacionPanel = createDonacionesPanel();
         tabbedPane.addTab("donaciones", donacionPanel);
         tabbedPane.addChangeListener(e -> {
             int selectedIndex = tabbedPane.getSelectedIndex();
             String title = tabbedPane.getTitleAt(selectedIndex);
-
-    
         });
-        JPanel mapaPanel = createMapaPanel();
-        tabbedPane.addTab("Mapa", mapaPanel);
 
-        
         frame.add(panelVertical, BorderLayout.NORTH);
         frame.add(tabbedPane, BorderLayout.CENTER);
 
@@ -234,7 +239,7 @@ public class PaginaUsuario {
         JPanel rewardsContainer = new JPanel();
         rewardsContainer.setLayout(null);
         rewardsContainer.setBackground(Color.WHITE);
-        rewardsContainer.setPreferredSize(new Dimension(950, 340)); // Aumentado de 300 a 340 para más espacio vertical
+        rewardsContainer.setPreferredSize(new Dimension(950, 340));
         updateRewardsDisplay(rewardsContainer);
         JScrollPane scrollPane = new JScrollPane(rewardsContainer);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -243,17 +248,17 @@ public class PaginaUsuario {
 
         JPanel paginationPanel = new JPanel();
         paginationPanel.setLayout(null);
-        paginationPanel.setPreferredSize(new Dimension(1000, 30)); // Reducido de 40 a 30 para aprovechar espacio
+        paginationPanel.setPreferredSize(new Dimension(1000, 30));
         paginationPanel.setBackground(Color.WHITE);
 
-        JButton prevButton = Estilos.crearBoton("#007BFF", "#FFFFFF", "<< Página", 70, 15); // Reducido a 70x15 (más pequeño que el botón Canjear)
+        JButton prevButton = Estilos.crearBoton("#007BFF", "#FFFFFF", "<< Página", 70, 15);
         prevButton.setBounds(375, 5, 70, 15);
 
         JLabel pageLabel = new JLabel("Página " + currentPage);
         Estilos.aplicarEstiloEtiqueta(pageLabel);
         pageLabel.setBounds(480, 5, 100, 15);
 
-        JButton nextButton = Estilos.crearBoton("#007BFF", "#FFFFFF", "Página >>", 70, 15); // Reducido a 70x15
+        JButton nextButton = Estilos.crearBoton("#007BFF", "#FFFFFF", "Página >>", 70, 15);
         nextButton.setBounds(525, 5, 70, 15);
 
         prevButton.addActionListener(e -> {
@@ -284,7 +289,7 @@ public class PaginaUsuario {
         container.removeAll();
         List<Recompensa> recompensas = recompensaServicio.obtenerTodasLasRecompensas();
         int start = (currentPage - 1) * REWARDS_PER_PAGE;
-        int end = Math.min(start + REWARDS_PER_PAGE, TOTAL_REWARDS);
+        int end = Math.min(start + REWARDS_PER_PAGE, recompensas.size());
 
         int rewardsToShow = end - start;
 
@@ -295,11 +300,10 @@ public class PaginaUsuario {
             rewardCard.setBackground(Color.YELLOW);
             rewardCard.setBorder(BorderFactory.createLineBorder(Color.GREEN));
 
-            
             int cardWidth = 110;
-            int cardHeight = 160; 
-            int x = 20 + (i % 6) * 150; 
-            int y = 10 + (i / 6) * 170; 
+            int cardHeight = 160;
+            int x = 20 + (i % 6) * 150;
+            int y = 10 + (i / 6) * 170;
             rewardCard.setBounds(x, y, cardWidth, cardHeight);
 
             //imagen
@@ -324,20 +328,24 @@ public class PaginaUsuario {
             descArea.setWrapStyleWord(true);
             descArea.setOpaque(false);
             descArea.setEditable(false);
-            descArea.setBounds(5, 80, 100, 40); 
+            descArea.setBounds(5, 80, 100, 40);
             rewardCard.add(descArea);
 
             //puntos
             JLabel puntosLabel = new JLabel("Puntos: " + (recompensas.size() > index ? recompensas.get(index).puntos_necesarios : 100));
             Estilos.aplicarEstiloEtiqueta(puntosLabel);
             puntosLabel.setFont(new Font("Arial", Font.PLAIN, 10));
-            puntosLabel.setBounds(5, 120, 100, 20); 
+            puntosLabel.setBounds(5, 120, 100, 20);
             rewardCard.add(puntosLabel);
 
             //Canjear
             JButton canjearBtn = Estilos.crearBoton("#008000", "#FFFFFF", "Canjear", 80, 20);
-            canjearBtn.setFont(new Font("Arial", Font.PLAIN, 10)); 
-            canjearBtn.setBounds(15, 135, 80, 20); 
+            canjearBtn.setFont(new Font("Arial", Font.PLAIN, 10));
+            int finalIndex = index;
+            canjearBtn.addActionListener(e -> {
+                canjearRecompensa(recompensas.get(finalIndex), container);
+            });
+            canjearBtn.setBounds(15, 135, 80, 20);
             rewardCard.add(canjearBtn);
 
             container.add(rewardCard);
@@ -347,42 +355,81 @@ public class PaginaUsuario {
         container.repaint();
     }
 
-    private int getTotalPages() {
-        return (int) Math.ceil((double) TOTAL_REWARDS / REWARDS_PER_PAGE);
+    private void canjearRecompensa(Recompensa recompensa, JPanel container) {
+        // Obtener el correo del usuario desde la caché
+        String correoUsuario = Cache.obtenerCorreo();
+        if (correoUsuario == null || correoUsuario.equals("null")) {
+            JOptionPane.showMessageDialog(frame, "Error: No se pudo obtener el usuario logueado.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Obtener el id_usuario
+        int idUsuario = usuarioDAO.obtenerIdPorCorreo(correoUsuario);
+        if (idUsuario == -1) {
+            JOptionPane.showMessageDialog(frame, "Error: No se pudo obtener el ID del usuario.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Obtener el puntaje actual del usuario
+        Puntaje puntajeActual = puntajeDAO.obtenerPuntajePorCorreo(correoUsuario);
+        if (puntajeActual == null) {
+            JOptionPane.showMessageDialog(frame, "Error: No se encontraron puntos para este usuario.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Calcular puntos a gastar con posible descuento
+        int puntosOriginales = recompensa.puntos_necesarios;
+        int puntosGastados = puntosOriginales;
+        List<Descuento> descuentos = descuentoDAO.obtenerTodos();
+        Date fechaActual = new Date();
+        for (Descuento descuento : descuentos) {
+            if (descuento.getId_recompensa() == recompensa.id_recompensa &&
+                !fechaActual.before(descuento.getFecha_inicio()) &&
+                !fechaActual.after(descuento.getFecha_fin())) {
+                double descuentoPorcentaje = descuento.getPorcentaje_descuento() / 100.0;
+                puntosGastados = (int) Math.round(puntosOriginales * (1 - descuentoPorcentaje));
+                break;
+            }
+        }
+
+        // Verificar si hay suficientes puntos
+        if (puntajeActual.getPuntosTotales() == null || puntajeActual.getPuntosTotales() < puntosGastados) {
+            JOptionPane.showMessageDialog(frame, "No tienes suficientes puntos para canjear esta recompensa.", "Insuficientes puntos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Registrar el canje
+        Timestamp fechaCanje = new Timestamp(fechaActual.getTime());
+        Canje canje = new Canje(fechaCanje, puntosGastados, idUsuario, recompensa.id_recompensa);
+        if (!canjeDAO.insertarCanje(canje)) {
+            JOptionPane.showMessageDialog(frame, "Error al registrar el canje.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // Actualizar tabla Puntaje
+        int nuevosPuntosGastados = (puntajeActual.getPuntosGastados() != null ? puntajeActual.getPuntosGastados() : 0) + puntosGastados;
+        int nuevosPuntosTotales = (puntajeActual.getPuntosTotales() != null ? puntajeActual.getPuntosTotales() : 0) - puntosGastados; // Corrección aquí
+        puntajeActual.setPuntosGastados(nuevosPuntosGastados);
+        puntajeActual.setPuntosTotales(nuevosPuntosTotales);
+        if (!puntajeDAO.actualizarPuntajePorCorreo(correoUsuario, puntajeActual)) {
+            JOptionPane.showMessageDialog(frame, "Error al actualizar los puntos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JOptionPane.showMessageDialog(frame, "Recompensa canjeada exitosamente. Puntos restantes: " + nuevosPuntosTotales +
+                (puntosGastados < puntosOriginales ? " (Se aplicó un descuento)." : ""), "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        updateRewardsDisplay(container);
     }
 
-
+    private int getTotalPages() {
+        List<Recompensa> recompensas = recompensaServicio.obtenerTodasLasRecompensas();
+        return (int) Math.ceil((double) recompensas.size() / REWARDS_PER_PAGE);
+    }
 
     private JPanel createDonacionesPanel() {
-    JPanel donacionPanel = new JPanel();
-    donacionPanel.setLayout(new BorderLayout());
-    // Añade aquí componentes o paneles que muestren las donaciones, por ejemplo:
-    donacionPanel.add(new AccederDonaciones()); // si AccederDonaciones es un JPanel
-    return donacionPanel;
-}
-
-
-private JPanel createMapaPanel() {
-    JPanel mapaPanel = new JPanel();
-    mapaPanel.setLayout(new BorderLayout());
-
-    // Obtenemos todos los puntos de la BD
-    Backend.DAOs.PuntoReciclajeDAO dao = new Backend.DAOs.PuntoReciclajeDAO();
-    java.util.List<PuntoReciclaje> puntos = dao.obtenerTodosLosPuntos();
-
-    // Convertimos a GeoPosition
-    java.util.List<org.jxmapviewer.viewer.GeoPosition> posiciones = new ArrayList<>();
-    for (PuntoReciclaje p : puntos) {
-        posiciones.add(new org.jxmapviewer.viewer.GeoPosition(p.getLatitud(), p.getLongitud()));
+        JPanel donacionPanel = new JPanel();
+        donacionPanel.setLayout(new BorderLayout());
+        donacionPanel.add(new AccederDonaciones());
+        return donacionPanel;
     }
-
-    // Creamos el panel del mapa con puntos marcados
-    MapSelectorPanel panelMapa = new MapSelectorPanel();
-    panelMapa.mostrarPuntos(posiciones);
-
-    mapaPanel.add(panelMapa, BorderLayout.CENTER);
-
-    return mapaPanel;
-}
-
 }
