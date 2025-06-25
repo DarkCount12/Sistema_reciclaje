@@ -45,8 +45,13 @@ public class InformacionUsuario extends JPanel {
         String puntajeTexto = (puntaje != null && puntaje.getPuntosTotales() != null)
                 ? puntaje.getPuntosTotales().toString()
                 : "0";
+        String Puntosganados= ""+puntaje.getPuntosGanados();
+        String Puntosgastados= ""+puntaje.getPuntosGastados();
 
-        add(crearCampoLabel("Puntaje Recaudado:", puntajeTexto));
+
+        add(crearCampoLabel("Puntaje Total:", puntajeTexto));
+        add(crearCampoLabel("Puntaje Ganado:", Puntosganados));
+        add(crearCampoLabel("Puntaje Gastado:", Puntosgastados));
         add(crearCampoLabel("Nombre:", usuario.nombre));
         add(crearCampoLabel("Apellido:", usuario.apellido));
         add(crearCampoLabel("Correo:", usuario.correo));

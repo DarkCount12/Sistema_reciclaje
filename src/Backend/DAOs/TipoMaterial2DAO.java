@@ -89,4 +89,23 @@ public class TipoMaterial2DAO implements CrudDAO<TipoMaterial> {
         }
         return lista;
     }
+
+    public List<String> obtenerNombresTipoMaterial() {
+        List<String> materiales = new ArrayList<>();
+        String sql = "SELECT categoria FROM Tipo_Material";
+
+        try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                materiales.add(rs.getString("categoria"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener nombres de materiales: " + e.getMessage());
+        }
+
+        return materiales;
+    }
+
+
 }
