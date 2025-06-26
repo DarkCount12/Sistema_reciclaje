@@ -1,20 +1,34 @@
 package Frontend.Page.Secciones;
 
 import Backend.Servicios.ReportesServicio;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.List;
 import java.util.Map;
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 public class Reportes {
     private static JCheckBox chkRankingUsuarios;
-    private static JComboBox<Integer> cmbCantidadUsuarios;
+    private static JComboBox<String> cmbCantidadUsuarios;
     private static JTable tablaRankingUsuarios;
     private static JScrollPane scrollRankingUsuarios;
 
     private static JCheckBox chkRankingRecompensas;
-    private static JComboBox<Integer> cmbCantidadRecompensas;
+    private static JComboBox<String> cmbCantidadRecompensas;
     private static JTable tablaRankingRecompensas;
     private static JScrollPane scrollRankingRecompensas;
 
@@ -342,8 +356,8 @@ public class Reportes {
         // Panel para el ranking de usuarios
         JPanel rankingPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         chkRankingUsuarios = new JCheckBox("Ranking Top Usuarios por Kg Reciclados:");
-        cmbCantidadUsuarios = new JComboBox<>(new Integer[]{3, 5, 7, 10});
-        cmbCantidadUsuarios.setSelectedItem(3); // Por defecto 3
+        cmbCantidadUsuarios = new JComboBox<>(new String[]{"3", "5", "7", "10", "Todos"});
+        cmbCantidadUsuarios.setSelectedItem("3"); // Por defecto 3
         cmbCantidadUsuarios.setEnabled(false);
         cmbCantidadUsuarios.setPreferredSize(new Dimension(80, 25));
 
@@ -509,8 +523,8 @@ public class Reportes {
         // Panel para el ranking de recompensas
         JPanel rankingRecompensasPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         chkRankingRecompensas = new JCheckBox("Ranking Top Recompensas por Canjes:");
-        cmbCantidadRecompensas = new JComboBox<>(new Integer[]{3, 5, 7, 10});
-        cmbCantidadRecompensas.setSelectedItem(3); // Por defecto 3
+        cmbCantidadRecompensas = new JComboBox<>(new String[]{"3", "5", "7", "10", "Todos"});
+        cmbCantidadRecompensas.setSelectedItem("3");
         cmbCantidadRecompensas.setEnabled(false);
         cmbCantidadRecompensas.setPreferredSize(new Dimension(80, 25));
 
@@ -857,12 +871,10 @@ public class Reportes {
         try {
             String usuarioSeleccionado = (String) cmbUsuarios.getSelectedItem();
             if (usuarioSeleccionado != null && !usuarioSeleccionado.isEmpty()) {
-                // Actualizar total de kg reciclados por el usuario
                 int totalKg = servicioReportes.obtenerTotalKgRecicladoPorUsuario(usuarioSeleccionado);
                 lblValorTotalKgUsuario.setText(totalKg + " kg");
                 lblTotalKgUsuario.setText("Total Kg reciclado (Por \"" + usuarioSeleccionado + "\"):");
 
-                // Actualizar total de puntos obtenidos por el usuario
                 int totalPuntos = servicioReportes.obtenerTotalPuntosObtenidosPorUsuario(usuarioSeleccionado);
                 lblValorTotalPuntosUsuario.setText(totalPuntos + " pts");
                 lblTotalPuntosUsuario.setText("Total puntos generados (Por \"" + usuarioSeleccionado + "\"):");
@@ -1002,9 +1014,10 @@ public class Reportes {
     }
 
     private static void cargarRankingUsuarios() {
-        Integer cantidad = (Integer) cmbCantidadUsuarios.getSelectedItem();
-        if (cantidad != null) {
-            List<Map<String, Object>> datos = servicioReportes.obtenerRankingUsuariosPorKgReciclados(cantidad);
+        String cantidadStr = (String) cmbCantidadUsuarios.getSelectedItem();
+        if (cantidadStr != null) {
+            List<Map<String, Object>> datos;
+            datos = servicioReportes.obtenerRankingUsuariosPorKgReciclados(cantidadStr);
 
             String[] columnas = {"Posición", "Usuario", "Total Kg Reciclados", "Total Puntos"};
             DefaultTableModel model = new DefaultTableModel(columnas, 0);
@@ -1026,9 +1039,9 @@ public class Reportes {
     }
 
     private static void cargarRankingRecompensas() {
-        Integer cantidad = (Integer) cmbCantidadRecompensas.getSelectedItem();
-        if (cantidad != null) {
-            List<Map<String, Object>> datos = servicioReportes.obtenerRankingRecompensasPorCanjes(cantidad);
+        String cantidadStr = (String) cmbCantidadRecompensas.getSelectedItem();
+        if (cantidadStr != null) {
+            List<Map<String, Object>> datos = servicioReportes.obtenerRankingRecompensasPorCanjes(cantidadStr);
 
             String[] columnas = {"Posición", "Recompensa", "Total Canjes", "Total Puntos Utilizados"};
             DefaultTableModel model = new DefaultTableModel(columnas, 0);

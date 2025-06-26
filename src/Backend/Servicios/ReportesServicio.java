@@ -1,7 +1,9 @@
 package Backend.Servicios;
 
 import Backend.ConexionBD;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -526,8 +528,9 @@ public class ReportesServicio {
     }
 
 
-    public List<Map<String, Object>> obtenerRankingUsuariosPorKgReciclados(int cantidad) {
+    public List<Map<String, Object>> obtenerRankingUsuariosPorKgReciclados(String cantidad) {
         List<Map<String, Object>> resultados = new ArrayList<>();
+        
         String sql = "SELECT " +
                 "CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario, " +
                 "COALESCE(SUM(lm.cantidad_kg), 0.0) AS total_kg_reciclado, " +
@@ -538,11 +541,19 @@ public class ReportesServicio {
                 "LEFT JOIN Lista_Material lm ON r.id_reciclaje = lm.id_reciclaje " +
                 "LEFT JOIN Tipo_Material tm ON lm.id_tipo_material = tm.id_tipo_material " +
                 "GROUP BY u.id_usuario, u.nombre, u.apellido " +
-                "ORDER BY total_kg_reciclado DESC " +
-                "LIMIT ?";
+                "ORDER BY total_kg_reciclado DESC";
+        
+        boolean esTodos = "Todos".equals(cantidad);
+        if (!esTodos) {
+            sql += " LIMIT ?";
+        }
 
         try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
-            stmt.setInt(1, cantidad);
+            if (!esTodos) {
+                int limite = Integer.parseInt(cantidad);
+                stmt.setInt(1, limite);
+            }
+            
             ResultSet rs = stmt.executeQuery();
 
             int posicion = 1;
@@ -551,7 +562,6 @@ public class ReportesServicio {
                 fila.put("posicion", posicion);
                 fila.put("nombre_usuario", rs.getString("nombre_usuario"));
 
-                // Asegurar que los valores no sean null
                 double totalKg = rs.getDouble("total_kg_reciclado");
                 double totalPuntos = rs.getDouble("total_puntos_generados");
                 int totalReciclajes = rs.getInt("total_reciclajes");
@@ -566,13 +576,17 @@ public class ReportesServicio {
         } catch (SQLException e) {
             System.out.println("Error al obtener ranking usuarios por kg reciclados: " + e.getMessage());
             e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.out.println("Error: valor de cantidad no válido: " + cantidad);
+            e.printStackTrace();
         }
 
         return resultados;
     }
 
-    public List<Map<String, Object>> obtenerRankingRecompensasPorCanjes(int cantidad) {
+    public List<Map<String, Object>> obtenerRankingRecompensasPorCanjes(String cantidad) {
         List<Map<String, Object>> resultados = new ArrayList<>();
+        
         String sql = "SELECT " +
                 "r.nombre AS nombre_recompensa, " +
                 "r.descripcion, " +
@@ -591,11 +605,21 @@ public class ReportesServicio {
                 "LEFT JOIN Descuento d ON r.id_recompensa = d.id_recompensa " +
                 "AND c.fecha_canje BETWEEN d.fecha_inicio AND d.fecha_fin " +
                 "GROUP BY r.id_recompensa, r.nombre, r.descripcion, r.puntos_necesarios " +
-                "ORDER BY total_canjes DESC, total_puntos_utilizados DESC " +
-                "LIMIT ?";
+                "ORDER BY total_canjes DESC, total_puntos_utilizados DESC";
+        
+        boolean esTodos = "Todos".equals(cantidad);
+        if (!esTodos) {
+            sql += " LIMIT ?";
+        }
+
         try (PreparedStatement stmt = ConexionBD.obtenerConexion().prepareStatement(sql)) {
-            stmt.setInt(1, cantidad);
+            if (!esTodos) {
+                int limite = Integer.parseInt(cantidad);
+                stmt.setInt(1, limite);
+            }
+            
             ResultSet rs = stmt.executeQuery();
+            
             int posicion = 1;
             while (rs.next()) {
                 Map<String, Object> fila = new HashMap<>();
@@ -605,12 +629,18 @@ public class ReportesServicio {
                 fila.put("puntos_necesarios", rs.getInt("puntos_necesarios"));
                 fila.put("total_canjes", rs.getInt("total_canjes"));
                 fila.put("total_puntos_utilizados", rs.getInt("total_puntos_utilizados"));
+                
                 resultados.add(fila);
                 posicion++;
             }
         } catch (SQLException e) {
             System.out.println("Error al obtener ranking recompensas por canjes: " + e.getMessage());
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.out.println("Error: valor de cantidad no válido: " + cantidad);
+            e.printStackTrace();
         }
+        
         return resultados;
     }
 }
