@@ -227,4 +227,34 @@ public int obtenerPuntajeporId(int id){
 
     return 0 ;
 }
+
+
+
+public void registrarAcceso(String correo, Integer idUsuario, boolean exito, String descripcion) {
+    String sql = """
+        INSERT INTO bitacora_acceso (id_usuario, correo_ingresado, exito, ip_origen, descripcion, fecha_evento)
+        VALUES (?, ?, ?, ?, ?, NOW())
+        """;
+
+    try (Connection con = ConexionBD.obtenerConexion();
+         PreparedStatement stmt = con.prepareStatement(sql)) {
+
+        if (idUsuario != null) {
+            stmt.setInt(1, idUsuario);
+        } else {
+            stmt.setNull(1, java.sql.Types.INTEGER);
+        }
+
+        stmt.setString(2, correo);
+        stmt.setBoolean(3, exito);
+        stmt.setString(4, "127.0.0.1"); // O puedes buscar la IP real si es necesario
+        stmt.setString(5, descripcion);
+
+        stmt.executeUpdate();
+
+    } catch (SQLException e) {
+        System.out.println("Error al registrar en bitácora: " + e.getMessage());
+    }
+}
+
 }

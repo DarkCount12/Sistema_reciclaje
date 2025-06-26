@@ -55,7 +55,7 @@ public class RegistroUsuario extends JPanel {
                 txtContrasena.setText("");
                 txtTelefono.setText("");
             } else {
-                JOptionPane.showMessageDialog(this, "Error al registrar el usuario.");
+                JOptionPane.showMessageDialog(this, "Error al registrar el usuario,revise que lleno los campos correctamente.");
             }
         });
     }

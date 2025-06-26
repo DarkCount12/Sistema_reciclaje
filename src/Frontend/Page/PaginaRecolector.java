@@ -187,7 +187,7 @@ private JPanel crearPanelRecolectarFusionado() {
                 usuarioActual[0] = usuario;
                 idUsuario=usuario.getId();
                 botonRecolectar.setEnabled(true);    
-                resultadoArea.setText("ID del recolector: " + usuario.getId() + "\n" +
+                resultadoArea.setText("ID del Usuario: " + usuario.getId() + "\n" +
                         "Nombre: " + usuario.getNombre() + " " + usuario.getApellido() + "\n" +
                         "Teléfono: " + usuario.getTelefono() + "\n" +
                         "Puntaje Total: " + k.getPuntosTotales() + "\n" +

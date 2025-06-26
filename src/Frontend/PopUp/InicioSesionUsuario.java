@@ -36,60 +36,64 @@ public class InicioSesionUsuario extends JPanel {
         add(Box.createRigidArea(new Dimension(0, 15)));
         add(btnLogin);
 
-btnLogin.addActionListener(e -> {
-    String correo = txtCorreo.getText();
-    String contrasena = new String(txtContrasena.getPassword());
-    UsuarioDAO r=new UsuarioDAO();
-    UsuarioServicio usuarioServicio = new UsuarioServicio();
-    boolean loginExitoso = usuarioServicio.autenticarUsuario(correo, contrasena);
+    btnLogin.addActionListener(e -> {
+        String correo = txtCorreo.getText();
+        String contrasena = new String(txtContrasena.getPassword());
+        UsuarioDAO r=new UsuarioDAO();
+        UsuarioServicio usuarioServicio = new UsuarioServicio();
+        boolean loginExitoso = usuarioServicio.autenticarUsuario(correo, contrasena);
+        Integer idUsuario = r.obtenerIdPorCorreo(correo);
 
-    if (loginExitoso) {
-        String rol = r.obtenerRolPorCorreo(correo); 
-        UsuarioServicio.activarEstado(correo,rol);
+        String descripcion = loginExitoso ? "Inicio de sesión exitoso" : "Credenciales incorrectas";
+         r.registrarAcceso(correo, idUsuario, loginExitoso, descripcion);
 
-        JOptionPane.showMessageDialog(this, "Bienvenido, " + correo);
+        if (loginExitoso) {
+            String rol = r.obtenerRolPorCorreo(correo); 
+            UsuarioServicio.activarEstado(correo,rol);
 
-        txtCorreo.setText("");
-        txtContrasena.setText("");
+            JOptionPane.showMessageDialog(this, "Bienvenido, " + correo);
 
-        Timer timer = new Timer(10, evt -> {
-            Window win = SwingUtilities.getWindowAncestor(this);
-            if (win != null) {
-                win.dispose();
-                PaginaPrincipal.principal.dispose();
-            }
+            txtCorreo.setText("");
+            txtContrasena.setText("");
 
-            SwingUtilities.invokeLater(() -> {
-                if ("recolector".equalsIgnoreCase(rol)) {
-                    new PaginaRecolector();
-                } else if("admin".equalsIgnoreCase(rol) ){
-                    new PaginaAdministrador();
-                } else {
-                    Home.main(new String[0]);
+            Timer timer = new Timer(10, evt -> {
+                Window win = SwingUtilities.getWindowAncestor(this);
+                if (win != null) {
+                    win.dispose();
+                    PaginaPrincipal.principal.dispose();
                 }
+
+                SwingUtilities.invokeLater(() -> {
+                    if ("recolector".equalsIgnoreCase(rol)) {
+                        new PaginaRecolector();
+                    } else if("admin".equalsIgnoreCase(rol) ){
+                        new PaginaAdministrador();
+                    } else {
+                        Home.main(new String[0]);
+                    }
+                });
             });
-        });
-        timer.setRepeats(false);
-        timer.start();
+            timer.setRepeats(false);
+            timer.start();
 
-    } else {
-        JOptionPane.showMessageDialog(this, "Error al iniciar sesión. Verifique sus credenciales.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al iniciar sesión. Verifique sus credenciales.");
+        }
+            });
+
+
     }
-        });
 
-
- }
-
-    private JPanel crearCampo(String etiqueta, JComponent campo) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setOpaque(false);
-        JLabel label = new JLabel(etiqueta);
-        label.setFont(new Font("Arial", Font.PLAIN, 15));
-        label.setPreferredSize(new Dimension(120, 30));
-        panel.add(label, BorderLayout.WEST);
-        panel.add(campo, BorderLayout.CENTER);
-        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
-        panel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        return panel;
+        private JPanel crearCampo(String etiqueta, JComponent campo) {
+            JPanel panel = new JPanel(new BorderLayout());
+            panel.setOpaque(false);
+            JLabel label = new JLabel(etiqueta);
+            label.setFont(new Font("Arial", Font.PLAIN, 15));
+            label.setPreferredSize(new Dimension(120, 30));
+            panel.add(label, BorderLayout.WEST);
+            panel.add(campo, BorderLayout.CENTER);
+            panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+            panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            return panel;
+        }
     }
-}
